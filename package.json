@@ -1,0 +1,19 @@
+{
+  "name": "taiwan-food-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "sync-data": "node scripts/fetch-data.mjs",
+    "deploy": "wrangler pages deploy dist"
+  },
+  "dependencies": {
+    "astro": "^4.15.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  }
+}
