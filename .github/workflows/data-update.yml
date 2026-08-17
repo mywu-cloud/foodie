@@ -1,0 +1,43 @@
+name: 資料同步與部署
+
+on:
+  schedule:
+    - cron: '0 20 * * *' # 每日台灣時間 04:00 執行一次
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+      - run: npm run sync-data
+        env:
+          # 讀取用的官方 API key（僅查詢，不做寫入）
+          DATA_SOURCE_API_KEY: ${{ secrets.DATA_SOURCE_API_KEY }}
+
+      # 每次同步都是新增快照檔案，不覆蓋歷史 —— 見 scripts/fetch-data.mjs 的說明
+      - name: 提交新的資料快照
+        run: |
+          git config user.name "food-site-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data-snapshots
+          git diff --cached --quiet || git commit -m "chore: 資料快照 $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push
+
+      - run: npm run build
+
+      - name: 部署到 Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: taiwan-food-site
+          directory: dist

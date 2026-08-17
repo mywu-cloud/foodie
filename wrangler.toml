@@ -1,0 +1,8 @@
+name = "taiwan-food-site-api"
+main = "workers/api.js"
+compatibility_date = "2026-08-01"
+
+# 搜尋/篩選 API 的認證金鑰，正式環境用 `wrangler secret put API_WRITE_TOKEN` 設定
+# 切記：任何會寫入資料的端點都必須檢查這個 token，這是日本旅遊網站專案踩過的坑
+[vars]
+ENVIRONMENT = "production"

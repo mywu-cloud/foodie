@@ -1,0 +1,81 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RestaurantCard from '../components/RestaurantCard.astro';
+import CategoryCard from '../components/CategoryCard.astro';
+import { popularRegions, homeCategories, moreCategories, getCategory } from '../lib/taxonomy';
+
+const allRestaurants = await getCollection('restaurants');
+const featured = allRestaurants
+  .filter((r) => r.data.tierId === 'must-eat' || r.data.tierId === 'recommended')
+  .slice(0, 6);
+---
+<BaseLayout title="首頁">
+  <section class="hero">
+    <h1>找到附近最對味的餐廳與小吃</h1>
+    <form class="search" action="/search" method="get">
+      <input type="text" name="q" placeholder="輸入餐廳名稱、地區或料理類型" />
+      <button type="submit">搜尋</button>
+    </form>
+  </section>
+
+  <section class="regions">
+    <h2>熱門地區</h2>
+    <div class="chip-row">
+      {popularRegions.map((r) => (
+        <a class="chip" href={`/region/${r.id}`}>{r.name}</a>
+      ))}
+    </div>
+  </section>
+
+  <section class="categories">
+    <h2>依料理分類</h2>
+    <div class="category-grid">
+      {homeCategories.map((c) => (
+        <CategoryCard id={c.id} name={c.name} subcategories={c.subcategories} />
+      ))}
+    </div>
+    {moreCategories.length > 0 && (
+      <details class="more-categories">
+        <summary>更多分類</summary>
+        <div class="category-grid">
+          {moreCategories.map((c) => (
+            <CategoryCard id={c.id} name={c.name} subcategories={c.subcategories} />
+          ))}
+        </div>
+      </details>
+    )}
+  </section>
+
+  <section class="featured">
+    <div class="featured-header">
+      <h2>本週精選</h2>
+      <a href="/ranking">查看完整排行榜 →</a>
+    </div>
+    <div class="restaurant-list">
+      {featured.map((r) => (
+        <RestaurantCard
+          slug={r.id}
+          name={r.data.name}
+          regionId={r.data.regionId}
+          districtId={r.data.districtId}
+          categoryName={getCategory(r.data.categoryId)?.name ?? r.data.categoryId}
+          tierId={r.data.tierId}
+        />
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { text-align: center; padding: 1.5rem 0 2rem; }
+  .search { display: flex; max-width: 480px; margin: 1rem auto 0; gap: 8px; }
+  .search input { flex: 1; padding: 8px 12px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 6px 14px; border: 0.5px solid #ddd; border-radius: 8px; text-decoration: none; color: inherit; }
+  .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; margin-top: 0.5rem; }
+  .more-categories { margin-top: 12px; }
+  .more-categories summary { cursor: pointer; font-size: 13px; color: #888; }
+  .featured-header { display: flex; justify-content: space-between; align-items: center; }
+  .restaurant-list { display: flex; flex-direction: column; gap: 10px; margin-top: 0.75rem; }
+</style>

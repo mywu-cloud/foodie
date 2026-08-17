@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RestaurantCard from '../../components/RestaurantCard.astro';
+import { regions, getRegion, getCategory } from '../../lib/taxonomy';
+
+export async function getStaticPaths() {
+  return regions.map((r) => ({ params: { region: r.id } }));
+}
+
+const { region: regionId } = Astro.params;
+const region = getRegion(regionId as string);
+const allRestaurants = await getCollection('restaurants');
+const results = allRestaurants.filter((r) => r.data.regionId === regionId);
+---
+<BaseLayout title={region?.name ?? '地區'}>
+  <h1>{region?.name} 美食</h1>
+  <div class="restaurant-list">
+    {results.map((r) => (
+      <RestaurantCard
+        slug={r.id}
+        name={r.data.name}
+        regionId={r.data.regionId}
+        districtId={r.data.districtId}
+        categoryName={getCategory(r.data.categoryId)?.name ?? r.data.categoryId}
+        tierId={r.data.tierId}
+      />
+    ))}
+    {results.length === 0 && <p>這個地區還沒有收錄餐廳，敬請期待。</p>}
+  </div>
+</BaseLayout>
+
+<style>
+  .restaurant-list { display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
+</style>
