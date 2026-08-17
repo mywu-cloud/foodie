@@ -1,81 +1,510 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import RestaurantCard from '../components/RestaurantCard.astro';
-import CategoryCard from '../components/CategoryCard.astro';
-import { popularRegions, homeCategories, moreCategories, getCategory } from '../lib/taxonomy';
+import RestaurantFeatureCard from '../components/RestaurantFeatureCard.astro';
+import TierBadge from '../components/TierBadge.astro';
+import { popularRegions, homeCategories, getCategory, getRegion, tiers } from '../lib/taxonomy';
 
 const allRestaurants = await getCollection('restaurants');
-const featured = allRestaurants
-  .filter((r) => r.data.tierId === 'must-eat' || r.data.tierId === 'recommended')
+const totalCount = allRestaurants.length;
+
+const tierOrder = (tierId: string) => tiers.find((t) => t.id === tierId)?.order ?? 99;
+
+// 「附近推薦」：優先顯示必吃首選 / 巷弄推薦，資料不足時退回顯示全部已收錄店家。
+const featured = (
+  allRestaurants.filter((r) => r.data.tierId === 'must-eat' || r.data.tierId === 'recommended').length > 0
+    ? allRestaurants.filter((r) => r.data.tierId === 'must-eat' || r.data.tierId === 'recommended')
+    : allRestaurants
+)
+  .slice()
+  .sort((a, b) => tierOrder(a.data.tierId) - tierOrder(b.data.tierId))
+  .slice(0, 9);
+
+// 「本週人氣小吃」：目前站上沒有收藏數／打卡數統計，改以分級 + 最近複核日期排序，
+// 呈現「編輯精選」而非虛構的熱門數字。
+const ranking = allRestaurants
+  .slice()
+  .sort((a, b) => {
+    const tierDiff = tierOrder(a.data.tierId) - tierOrder(b.data.tierId);
+    if (tierDiff !== 0) return tierDiff;
+    return (b.data.lastReviewedAt ?? '').localeCompare(a.data.lastReviewedAt ?? '');
+  })
   .slice(0, 6);
+
+const topPick = featured[0] ?? null;
+const topPickRegion = topPick ? getRegion(topPick.data.regionId) : null;
+const topPickDistrict = topPickRegion?.districts.find((d) => d.id === topPick?.data.districtId);
+
+// 城市指南：從熱門地區中挑 4 座城市做編輯導語（此為原創文案，非第三方內容）。
+const cityTaglines: Record<string, string> = {
+  taipei: '巷弄麵攤與老派冰室',
+  tainan: '早餐從牛肉湯開始',
+  taichung: '市場小吃一路吃到宵夜',
+  kaohsiung: '港邊海鮮與鹽埕老味',
+};
+const cityGuide = Object.keys(cityTaglines)
+  .map((id) => popularRegions.find((r) => r.id === id))
+  .filter((r): r is NonNullable<typeof r> => Boolean(r));
 ---
 <BaseLayout title="首頁">
   <section class="hero">
-    <h1>找到附近最對味的餐廳與小吃</h1>
-    <form class="search" action="/search" method="get">
-      <input type="text" name="q" placeholder="輸入餐廳名稱、地區或料理類型" />
-      <button type="submit">搜尋</button>
-    </form>
-  </section>
-
-  <section class="regions">
-    <h2>熱門地區</h2>
-    <div class="chip-row">
-      {popularRegions.map((r) => (
-        <a class="chip" href={`/region/${r.id}`}>{r.name}</a>
-      ))}
-    </div>
-  </section>
-
-  <section class="categories">
-    <h2>依料理分類</h2>
-    <div class="category-grid">
-      {homeCategories.map((c) => (
-        <CategoryCard id={c.id} name={c.name} subcategories={c.subcategories} />
-      ))}
-    </div>
-    {moreCategories.length > 0 && (
-      <details class="more-categories">
-        <summary>更多分類</summary>
-        <div class="category-grid">
-          {moreCategories.map((c) => (
-            <CategoryCard id={c.id} name={c.name} subcategories={c.subcategories} />
-          ))}
+    <div class="hero-copy">
+      <div class="badge">
+        <span class="dot"></span>
+        已收錄 {totalCount} 家店家資訊，持續新增中
+      </div>
+      <h1>找到附近<br />最對味的那一攤</h1>
+      <p class="lede">從巷口麵攤到老字號餐廳，依你的地區、分類與分級，挑出真正值得排隊的那一家。</p>
+      <form class="search" action="/search" method="get">
+        <div class="search-scope">
+          <span class="label">地點</span>
+          <span class="value">全台</span>
         </div>
-      </details>
+        <input type="text" name="q" placeholder="想吃什麼？牛肉麵、滷肉飯…" />
+        <button type="submit">搜尋</button>
+      </form>
+      <div class="hot-words">
+        {homeCategories.slice(0, 5).map((c) => (
+          <a href={`/category/${c.id}`}>{c.name}</a>
+        ))}
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-image" aria-hidden="true">
+        <span>放一張夜市或店內照片</span>
+      </div>
+      {topPick && (
+        <div class="hero-callout">
+          <div class="callout-label">編輯本週精選</div>
+          <div class="callout-name">{topPick.data.name}</div>
+          <div class="callout-meta">
+            {topPickRegion?.name}・{topPickDistrict?.name}{topPick.data.priceRange ? ` ・ ${topPick.data.priceRange}` : ''}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section id="nearby" class="nearby">
+    <div class="section-head">
+      <div>
+        <h2>附近推薦</h2>
+        <p class="section-sub">{featured.length} 家店家 · 依分級排序</p>
+      </div>
+    </div>
+
+    {homeCategories.length > 0 && (
+      <div class="filter-row" role="group" aria-label="依分類篩選">
+        <button type="button" class="pill is-active" data-cat="全部">全部</button>
+        {homeCategories.map((c) => (
+          <button type="button" class="pill" data-cat={c.name}>{c.name}</button>
+        ))}
+      </div>
+    )}
+
+    {featured.length > 0 ? (
+      <div class="feature-grid" id="feature-grid">
+        {featured.map((r) => (
+          <RestaurantFeatureCard
+            slug={r.id}
+            name={r.data.name}
+            regionId={r.data.regionId}
+            districtId={r.data.districtId}
+            categoryName={getCategory(r.data.categoryId)?.name ?? r.data.categoryId}
+            tierId={r.data.tierId}
+            description={r.data.description}
+            priceRange={r.data.priceRange}
+            openingHours={r.data.openingHours}
+          />
+        ))}
+      </div>
+    ) : (
+      <p class="empty">店家資料建置中，很快就會有第一批推薦名單。</p>
     )}
   </section>
 
-  <section class="featured">
-    <div class="featured-header">
-      <h2>本週精選</h2>
-      <a href="/ranking">查看完整排行榜 →</a>
+  <section id="ranking" class="ranking">
+    <div class="section-head">
+      <div>
+        <h2>本週人氣小吃</h2>
+        <p class="section-sub">編輯依分級與最近複核日期挑選，每週更新</p>
+      </div>
+      <a href="/category">看完整分類</a>
     </div>
-    <div class="restaurant-list">
-      {featured.map((r) => (
-        <RestaurantCard
-          slug={r.id}
-          name={r.data.name}
-          regionId={r.data.regionId}
-          districtId={r.data.districtId}
-          categoryName={getCategory(r.data.categoryId)?.name ?? r.data.categoryId}
-          tierId={r.data.tierId}
-        />
+    {ranking.length > 0 ? (
+      <div class="ranking-grid">
+        {ranking.map((r, i) => {
+          const region = getRegion(r.data.regionId);
+          const district = region?.districts.find((d) => d.id === r.data.districtId);
+          return (
+            <a href={`/restaurant/${r.id}`} class="ranking-row">
+              <span class="no">{String(i + 1).padStart(2, '0')}</span>
+              <div class="ranking-info">
+                <div class="ranking-name">{r.data.name}</div>
+                <div class="ranking-where">{region?.name}・{district?.name}</div>
+              </div>
+              <TierBadge tierId={r.data.tierId} />
+            </a>
+          );
+        })}
+      </div>
+    ) : (
+      <p class="empty">目前還沒有可以排行的店家，敬請期待。</p>
+    )}
+  </section>
+
+  <section id="cities" class="cities">
+    <h2>城市指南</h2>
+    <p class="section-sub">在地編輯挑選的路線，一天吃透一座城</p>
+    <div class="city-grid">
+      {cityGuide.map((region) => (
+        <a href={`/region/${region.id}`} class="city-card">
+          <span class="city-name">{region.name}</span>
+          <span class="city-desc">{cityTaglines[region.id]}</span>
+        </a>
       ))}
     </div>
   </section>
 </BaseLayout>
 
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-row .pill');
+  const cards = document.querySelectorAll<HTMLElement>('#feature-grid [data-category]');
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      buttons.forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      const cat = btn.dataset.cat;
+      cards.forEach((card) => {
+        const match = cat === '全部' || card.dataset.category === cat;
+        card.style.display = match ? '' : 'none';
+      });
+    });
+  });
+</script>
+
 <style>
-  .hero { text-align: center; padding: 1.5rem 0 2rem; }
-  .search { display: flex; max-width: 480px; margin: 1rem auto 0; gap: 8px; }
-  .search input { flex: 1; padding: 8px 12px; }
-  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip { padding: 6px 14px; border: 0.5px solid #ddd; border-radius: 8px; text-decoration: none; color: inherit; }
-  .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; margin-top: 0.5rem; }
-  .more-categories { margin-top: 12px; }
-  .more-categories summary { cursor: pointer; font-size: 13px; color: #888; }
-  .featured-header { display: flex; justify-content: space-between; align-items: center; }
-  .restaurant-list { display: flex; flex-direction: column; gap: 10px; margin-top: 0.75rem; }
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 56px;
+    align-items: center;
+    padding: 56px 0 40px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 14px;
+    background: var(--surface-1);
+    border-radius: 999px;
+    font-size: 13px;
+    color: #7a5a3a;
+    letter-spacing: 0.5px;
+    margin-bottom: 24px;
+  }
+  .badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .hero h1 {
+    font-weight: 900;
+    font-size: 52px;
+    line-height: 1.18;
+    margin: 0 0 18px;
+    letter-spacing: -1px;
+  }
+  .lede {
+    font-size: 16px;
+    line-height: 1.85;
+    color: var(--text-secondary);
+    margin: 0 0 30px;
+    max-width: 460px;
+  }
+  .search {
+    display: flex;
+    align-items: stretch;
+    background: var(--surface-0);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 10px 30px -18px rgba(58, 40, 22, 0.35);
+    max-width: 560px;
+  }
+  .search-scope {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 14px;
+    flex: 0 0 110px;
+    border-right: 1px solid var(--surface-2);
+  }
+  .search-scope .label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+  .search-scope .value {
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    padding: 0 16px;
+    font-size: 15px;
+    font-family: 'Noto Sans TC', sans-serif;
+    background: transparent;
+    color: var(--text-primary);
+  }
+  .search button {
+    border: 0;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 0 24px;
+    border-radius: 9px;
+    cursor: pointer;
+  }
+  .search button:hover {
+    background: var(--accent-hover);
+  }
+  .hot-words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .hot-words a {
+    padding: 7px 14px;
+    background: var(--surface-0);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .hot-words a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .hero-visual {
+    position: relative;
+  }
+  .hero-image {
+    position: relative;
+    height: 380px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--surface-1), var(--surface-2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-image span {
+    font-family: 'Noto Serif TC', serif;
+    color: var(--text-muted);
+    font-size: 15px;
+  }
+  .hero-callout {
+    position: absolute;
+    bottom: -24px;
+    left: -12px;
+    background: var(--surface-0);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    box-shadow: 0 14px 34px -20px rgba(58, 40, 22, 0.4);
+    max-width: 260px;
+  }
+  .callout-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .callout-name {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 700;
+    font-size: 17px;
+  }
+  .callout-meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .section-head h2 {
+    font-weight: 700;
+    font-size: 30px;
+    margin: 0 0 8px;
+  }
+  .section-sub {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .nearby {
+    padding-top: 64px;
+  }
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+  .pill {
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    cursor: pointer;
+    background: var(--surface-0);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .pill.is-active {
+    background: var(--text-primary);
+    color: var(--bg-page);
+    border-color: var(--text-primary);
+  }
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .ranking {
+    margin-top: 72px;
+    background: var(--surface-2);
+    border-radius: 22px;
+    padding: 40px 36px;
+  }
+  .ranking-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 48px;
+  }
+  .ranking-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    color: inherit;
+  }
+  .ranking-row:hover {
+    color: inherit;
+  }
+  .ranking-row .no {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 900;
+    font-size: 24px;
+    color: var(--accent);
+    min-width: 36px;
+  }
+  .ranking-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .ranking-name {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .ranking-where {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+  }
+
+  .cities {
+    padding-top: 72px;
+  }
+  .cities h2 {
+    font-weight: 700;
+    font-size: 30px;
+    margin: 0 0 8px;
+  }
+  .city-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-top: 24px;
+  }
+  .city-card {
+    position: relative;
+    height: 200px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: linear-gradient(160deg, #8a6a45, #4a3624);
+    display: flex;
+    align-items: flex-end;
+    padding: 18px;
+  }
+  .city-name {
+    display: block;
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #fff;
+  }
+  .city-desc {
+    display: block;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.82);
+    margin-top: 2px;
+  }
+  .city-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .empty {
+    padding: 40px 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 960px) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+    .feature-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .ranking-grid {
+      grid-template-columns: 1fr;
+    }
+    .city-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
+    .feature-grid {
+      grid-template-columns: 1fr;
+    }
+    .city-grid {
+      grid-template-columns: 1fr;
+    }
+    .hero h1 {
+      font-size: 38px;
+    }
+  }
 </style>

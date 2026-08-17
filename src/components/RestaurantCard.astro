@@ -15,7 +15,7 @@ const region = getRegion(regionId);
 const district = region?.districts.find((d) => d.id === districtId);
 ---
 <a href={`/restaurant/${slug}`} class="restaurant-card">
-  <div class="thumb"></div>
+  <div class="thumb" aria-hidden="true">{name.slice(0, 1)}</div>
   <div class="info">
     <p class="name">{name}</p>
     <p class="meta">{region?.name}・{district?.name}・{categoryName}</p>
@@ -27,32 +27,45 @@ const district = region?.districts.find((d) => d.id === districtId);
   .restaurant-card {
     display: flex;
     align-items: center;
-    gap: 12px;
-    background: #fff;
-    border: 0.5px solid #e5e5e5;
-    border-radius: 12px;
-    padding: 10px 14px;
+    gap: 14px;
+    background: var(--surface-0, #fff);
+    border: 1px solid var(--border, #e5e5e5);
+    border-radius: 14px;
+    padding: 12px 16px;
     text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease;
+  }
+  .restaurant-card:hover {
+    border-color: var(--border-strong, #dccdb6);
     color: inherit;
   }
   .thumb {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    background: #f2f2f2;
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    background: var(--surface-1, #f1e7d8);
+    color: var(--text-muted, #9a8e80);
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 700;
+    font-size: 16px;
   }
   .info {
     flex: 1;
+    min-width: 0;
   }
   .name {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
     margin: 0;
   }
   .meta {
     font-size: 12px;
-    color: #888;
+    color: var(--text-muted, #888);
     margin: 2px 0 0;
   }
 </style>

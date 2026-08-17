@@ -1,0 +1,1066 @@
+diff --git a/src/components/CategoryCard.astro b/src/components/CategoryCard.astro
+index b0f1806..eaf978a 100644
+--- a/src/components/CategoryCard.astro
++++ b/src/components/CategoryCard.astro
+@@ -26,31 +26,40 @@ const { id, name, subcategories = [] } = Astro.props;
+ 
+ <style>
+   .category-card {
+-    background: #f7f7f5;
+-    border-radius: 8px;
+-    padding: 12px 8px;
++    background: var(--surface-2, #f7f7f5);
++    border: 1px solid var(--border, transparent);
++    border-radius: 12px;
++    padding: 14px 10px;
+     text-align: center;
++    transition: border-color 0.15s ease;
++  }
++  .category-card:hover {
++    border-color: var(--border-strong, #dccdb6);
+   }
+   .category-main {
+     display: block;
+-    font-size: 13px;
++    font-size: 14px;
++    font-weight: 500;
+     text-decoration: none;
+-    color: inherit;
++    color: var(--text-primary, inherit);
+   }
+   .subcategories summary {
+     font-size: 11px;
+-    color: #888;
++    color: var(--text-muted, #888);
+     cursor: pointer;
+-    margin-top: 6px;
++    margin-top: 8px;
+   }
+   .subcategories ul {
+     list-style: none;
+     padding: 0;
+-    margin: 6px 0 0;
++    margin: 8px 0 0;
++    display: flex;
++    flex-direction: column;
++    gap: 4px;
+   }
+   .subcategories a {
+     font-size: 12px;
+     text-decoration: none;
+-    color: inherit;
++    color: var(--text-secondary, inherit);
+   }
+ </style>
+diff --git a/src/components/RestaurantCard.astro b/src/components/RestaurantCard.astro
+index 39c393c..1517b74 100644
+--- a/src/components/RestaurantCard.astro
++++ b/src/components/RestaurantCard.astro
+@@ -15,7 +15,7 @@ const region = getRegion(regionId);
+ const district = region?.districts.find((d) => d.id === districtId);
+ ---
+ <a href={`/restaurant/${slug}`} class="restaurant-card">
+-  <div class="thumb"></div>
++  <div class="thumb" aria-hidden="true">{name.slice(0, 1)}</div>
+   <div class="info">
+     <p class="name">{name}</p>
+     <p class="meta">{region?.name}・{district?.name}・{categoryName}</p>
+@@ -27,32 +27,45 @@ const district = region?.districts.find((d) => d.id === districtId);
+   .restaurant-card {
+     display: flex;
+     align-items: center;
+-    gap: 12px;
+-    background: #fff;
+-    border: 0.5px solid #e5e5e5;
+-    border-radius: 12px;
+-    padding: 10px 14px;
++    gap: 14px;
++    background: var(--surface-0, #fff);
++    border: 1px solid var(--border, #e5e5e5);
++    border-radius: 14px;
++    padding: 12px 16px;
+     text-decoration: none;
+     color: inherit;
++    transition: border-color 0.15s ease;
++  }
++  .restaurant-card:hover {
++    border-color: var(--border-strong, #dccdb6);
++    color: inherit;
+   }
+   .thumb {
+-    width: 44px;
+-    height: 44px;
+-    border-radius: 8px;
+-    background: #f2f2f2;
++    width: 46px;
++    height: 46px;
++    border-radius: 10px;
++    background: var(--surface-1, #f1e7d8);
++    color: var(--text-muted, #9a8e80);
+     flex-shrink: 0;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    font-family: 'Noto Serif TC', serif;
++    font-weight: 700;
++    font-size: 16px;
+   }
+   .info {
+     flex: 1;
++    min-width: 0;
+   }
+   .name {
+-    font-size: 14px;
++    font-size: 15px;
+     font-weight: 500;
+     margin: 0;
+   }
+   .meta {
+     font-size: 12px;
+-    color: #888;
++    color: var(--text-muted, #888);
+     margin: 2px 0 0;
+   }
+ </style>
+diff --git a/src/components/RestaurantFeatureCard.astro b/src/components/RestaurantFeatureCard.astro
+new file mode 100644
+index 0000000..57fb402
+--- /dev/null
++++ b/src/components/RestaurantFeatureCard.astro
+@@ -0,0 +1,114 @@
++---
++// 首頁「附近推薦」用的大卡片版型 — 對應設計稿的照片卡，取代原本設計稿裡的假評分（4.8 顆星）
++// 以真實資料的 TierBadge（人工分級）呈現，理由見 CLAUDE.md：本站分級不採第三方自動評分。
++import TierBadge from './TierBadge.astro';
++import { getRegion } from '../lib/taxonomy';
++
++interface Props {
++  slug: string;
++  name: string;
++  regionId: string;
++  districtId: string;
++  categoryName: string;
++  tierId: string;
++  description: string;
++  priceRange?: string;
++  openingHours?: string;
++}
++const { slug, name, regionId, districtId, categoryName, tierId, description, priceRange, openingHours } =
++  Astro.props;
++const region = getRegion(regionId);
++const district = region?.districts.find((d) => d.id === districtId);
++---
++<article class="feature-card" data-category={categoryName}>
++  <a href={`/restaurant/${slug}`} class="thumb" aria-label={name}>
++    <span class="thumb-label">{name}</span>
++  </a>
++  <div class="body">
++    <div class="title-row">
++      <h3><a href={`/restaurant/${slug}`}>{name}</a></h3>
++      <TierBadge tierId={tierId} />
++    </div>
++    <p class="desc">{description}</p>
++    <div class="meta-row">
++      <span>{region?.name}・{district?.name}</span>
++      <span>{categoryName}</span>
++      {priceRange && <span>{priceRange}</span>}
++      {openingHours && <span>{openingHours}</span>}
++    </div>
++  </div>
++</article>
++
++<style>
++  .feature-card {
++    background: var(--surface-0, #fff);
++    border: 1px solid var(--border, #ebe2d4);
++    border-radius: 16px;
++    overflow: hidden;
++    display: flex;
++    flex-direction: column;
++    transition: border-color 0.15s ease;
++  }
++  .feature-card:hover {
++    border-color: var(--border-strong, #dccdb6);
++  }
++  .thumb {
++    position: relative;
++    height: 190px;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    background: linear-gradient(135deg, var(--surface-1, #f1e7d8), var(--surface-2, #f4ede1));
++    text-decoration: none;
++  }
++  .thumb-label {
++    font-family: 'Noto Serif TC', serif;
++    font-weight: 700;
++    font-size: 15px;
++    color: var(--text-muted, #9a8e80);
++    padding: 0 16px;
++    text-align: center;
++  }
++  .body {
++    padding: 18px 20px 20px;
++    display: flex;
++    flex-direction: column;
++    gap: 10px;
++    flex: 1;
++  }
++  .title-row {
++    display: flex;
++    align-items: center;
++    justify-content: space-between;
++    gap: 12px;
++  }
++  .title-row h3 {
++    margin: 0;
++    font-size: 19px;
++    font-weight: 700;
++    min-width: 0;
++  }
++  .title-row h3 a {
++    color: var(--text-primary, inherit);
++  }
++  .desc {
++    margin: 0;
++    font-size: 14px;
++    line-height: 1.7;
++    color: var(--text-secondary, #6b6055);
++    display: -webkit-box;
++    -webkit-line-clamp: 2;
++    -webkit-box-orient: vertical;
++    overflow: hidden;
++  }
++  .meta-row {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 12px;
++    margin-top: auto;
++    padding-top: 12px;
++    border-top: 1px solid var(--surface-2, #f2eae0);
++    font-size: 13px;
++    color: var(--text-muted, #7a6e62);
++  }
++</style>
+diff --git a/src/components/TierBadge.astro b/src/components/TierBadge.astro
+index 99edf17..587a425 100644
+--- a/src/components/TierBadge.astro
++++ b/src/components/TierBadge.astro
+@@ -11,7 +11,7 @@ const colors = tier ? tierColorTokens[tier.colorToken] : tierColorTokens.neutral
+ {tier && (
+   <span
+     class="tier-badge"
+-    style={`background:${colors.bg};color:${colors.text};${colors.border ? `border:0.5px solid ${colors.border};` : ''}`}
++    style={`background:${colors.bg};color:${colors.text};${colors.border ? `border:1px solid ${colors.border};` : ''}`}
+   >
+     {tier.name}
+   </span>
+@@ -19,9 +19,14 @@ const colors = tier ? tierColorTokens[tier.colorToken] : tierColorTokens.neutral
+ 
+ <style>
+   .tier-badge {
++    display: inline-flex;
++    align-items: center;
++    font-family: 'Noto Sans TC', sans-serif;
+     font-size: 12px;
+-    padding: 4px 10px;
+-    border-radius: 8px;
++    font-weight: 500;
++    padding: 5px 12px;
++    border-radius: 999px;
+     white-space: nowrap;
++    letter-spacing: 0.5px;
+   }
+ </style>
+diff --git a/src/layouts/BaseLayout.astro b/src/layouts/BaseLayout.astro
+index c3698a9..0508a3d 100644
+--- a/src/layouts/BaseLayout.astro
++++ b/src/layouts/BaseLayout.astro
+@@ -12,46 +12,191 @@ const { title, description = '台灣分區分類分級美食查詢' } = Astro.pr
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+     <meta name="description" content={description} />
+     <title>{title} | 台灣美食通</title>
++    <link rel="preconnect" href="https://fonts.googleapis.com" />
++    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
++    <link
++      href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap"
++      rel="stylesheet"
++    />
+   </head>
+   <body>
+-    <header class="site-header">
+-      <a href="/" class="logo">台灣美食通</a>
+-      <nav>
+-        <a href="/region">地區</a>
+-        <a href="/category">分類</a>
+-        <a href="/ranking">排行榜</a>
+-      </nav>
+-    </header>
+-    <main>
+-      <slot />
+-    </main>
+-    <footer class="site-footer">
+-      <p>資料由編輯團隊人工建檔與複核，非自動爬取第三方評分。</p>
+-    </footer>
++    <div class="page">
++      <header class="site-header">
++        <a href="/" class="brand">
++          <span class="brand-name">台灣美食通</span>
++          <span class="brand-kicker">TAIWAN EATS</span>
++        </a>
++        <nav>
++          <a href="/#nearby">附近美食</a>
++          <a href="/#ranking">人氣排行</a>
++          <a href="/#cities">城市指南</a>
++          <a href="/category">分類瀏覽</a>
++        </nav>
++      </header>
++      <main>
++        <slot />
++      </main>
++      <footer class="site-footer">
++        <span class="brand-name">台灣美食通</span>
++        <div class="footer-links">
++          <a href="/">店家合作</a>
++          <a href="/">資料來源</a>
++          <a href="/">意見回饋</a>
++        </div>
++        <p>資料由編輯團隊人工建檔與複核，非自動爬取第三方評分。© {new Date().getFullYear()} 台灣美食通</p>
++      </footer>
++    </div>
+   </body>
+ </html>
+ 
+-<style>
++<style is:global>
++  :root {
++    /* 品牌色票 — 對應台灣美食通設計稿（暖色系、手寫感標題字） */
++    --bg-page: #fbf7f0;
++    --text-primary: #241c16;
++    --text-secondary: #5c5248;
++    --text-muted: #8c8074;
++    --border: #e8dfd1;
++    --border-strong: #dccdb6;
++    --accent: #c0402d;
++    --accent-hover: #8e2c1e;
++    --surface-0: #ffffff;
++    --surface-1: #f1e7d8;
++    --surface-2: #f4ede1;
++    --open-color: #3f6b4a;
++
++    /* 分級語意色票（供 TierBadge 使用，四個分級各一組） */
++    --bg-danger: #f7e2d9;
++    --text-danger: #a3341f;
++    --bg-warning: #f6ecd2;
++    --text-warning: #8a611c;
++    --text-secondary-badge: var(--text-secondary);
++  }
++
++  * {
++    box-sizing: border-box;
++  }
++
++  body {
++    margin: 0;
++    background: var(--bg-page);
++    color: var(--text-primary);
++    font-family: 'Noto Sans TC', sans-serif;
++    -webkit-font-smoothing: antialiased;
++  }
++
++  a {
++    color: var(--accent);
++    text-decoration: none;
++  }
++  a:hover {
++    color: var(--accent-hover);
++  }
++
++  ::selection {
++    background: #f3d9c2;
++  }
++
++  h1,
++  h2,
++  h3 {
++    font-family: 'Noto Serif TC', serif;
++  }
++
++  .page {
++    max-width: 1280px;
++    margin: 0 auto;
++  }
++
+   .site-header {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+-    padding: 0.75rem 1.5rem;
+-    border-bottom: 0.5px solid #e5e5e5;
++    padding: 26px 40px;
++    border-bottom: 1px solid var(--border);
++  }
++  .brand {
++    display: flex;
++    align-items: baseline;
++    gap: 12px;
++    color: var(--text-primary);
++  }
++  .brand:hover {
++    color: var(--text-primary);
++  }
++  .brand-name {
++    font-family: 'Noto Serif TC', serif;
++    font-weight: 900;
++    font-size: 22px;
++    letter-spacing: 1px;
++  }
++  .brand-kicker {
++    font-size: 12px;
++    color: var(--text-muted);
++    letter-spacing: 2px;
+   }
+   .site-header nav {
+     display: flex;
+-    gap: 1.25rem;
++    align-items: center;
++    gap: 28px;
++    font-size: 15px;
++    color: var(--text-secondary);
++  }
++  .site-header nav a {
++    color: var(--text-secondary);
+   }
++  .site-header nav a:hover {
++    color: var(--accent);
++  }
++
+   main {
+-    max-width: 960px;
+-    margin: 0 auto;
+-    padding: 1.5rem;
++    padding: 0 40px 96px;
+   }
++
+   .site-footer {
+-    text-align: center;
+-    padding: 1.5rem;
+-    font-size: 0.8rem;
+-    color: #888;
++    margin-top: 40px;
++    padding: 32px 40px 48px;
++    border-top: 1px solid var(--border);
++    display: flex;
++    justify-content: space-between;
++    align-items: center;
++    flex-wrap: wrap;
++    gap: 12px 24px;
++    font-size: 13px;
++    color: var(--text-muted);
++  }
++  .site-footer .brand-name {
++    font-size: 16px;
++    color: var(--text-primary);
++  }
++  .footer-links {
++    display: flex;
++    gap: 24px;
++  }
++  .footer-links a {
++    color: var(--text-muted);
++  }
++  .site-footer p {
++    width: 100%;
++    margin: 0;
++    order: 3;
++  }
++
++  @media (max-width: 720px) {
++    .site-header {
++      padding: 18px 20px;
++      flex-wrap: wrap;
++      gap: 12px;
++    }
++    .site-header nav {
++      gap: 16px;
++      font-size: 13px;
++    }
++    main {
++      padding: 0 20px 64px;
++    }
++    .site-footer {
++      padding: 24px 20px 32px;
++    }
+   }
+ </style>
+diff --git a/src/pages/index.astro b/src/pages/index.astro
+index 1967405..78dc5e4 100644
+--- a/src/pages/index.astro
++++ b/src/pages/index.astro
+@@ -1,81 +1,510 @@
+ ---
+ import { getCollection } from 'astro:content';
+ import BaseLayout from '../layouts/BaseLayout.astro';
+-import RestaurantCard from '../components/RestaurantCard.astro';
+-import CategoryCard from '../components/CategoryCard.astro';
+-import { popularRegions, homeCategories, moreCategories, getCategory } from '../lib/taxonomy';
++import RestaurantFeatureCard from '../components/RestaurantFeatureCard.astro';
++import TierBadge from '../components/TierBadge.astro';
++import { popularRegions, homeCategories, getCategory, getRegion, tiers } from '../lib/taxonomy';
+ 
+ const allRestaurants = await getCollection('restaurants');
+-const featured = allRestaurants
+-  .filter((r) => r.data.tierId === 'must-eat' || r.data.tierId === 'recommended')
++const totalCount = allRestaurants.length;
++
++const tierOrder = (tierId: string) => tiers.find((t) => t.id === tierId)?.order ?? 99;
++
++// 「附近推薦」：優先顯示必吃首選 / 巷弄推薦，資料不足時退回顯示全部已收錄店家。
++const featured = (
++  allRestaurants.filter((r) => r.data.tierId === 'must-eat' || r.data.tierId === 'recommended').length > 0
++    ? allRestaurants.filter((r) => r.data.tierId === 'must-eat' || r.data.tierId === 'recommended')
++    : allRestaurants
++)
++  .slice()
++  .sort((a, b) => tierOrder(a.data.tierId) - tierOrder(b.data.tierId))
++  .slice(0, 9);
++
++// 「本週人氣小吃」：目前站上沒有收藏數／打卡數統計，改以分級 + 最近複核日期排序，
++// 呈現「編輯精選」而非虛構的熱門數字。
++const ranking = allRestaurants
++  .slice()
++  .sort((a, b) => {
++    const tierDiff = tierOrder(a.data.tierId) - tierOrder(b.data.tierId);
++    if (tierDiff !== 0) return tierDiff;
++    return (b.data.lastReviewedAt ?? '').localeCompare(a.data.lastReviewedAt ?? '');
++  })
+   .slice(0, 6);
++
++const topPick = featured[0] ?? null;
++const topPickRegion = topPick ? getRegion(topPick.data.regionId) : null;
++const topPickDistrict = topPickRegion?.districts.find((d) => d.id === topPick?.data.districtId);
++
++// 城市指南：從熱門地區中挑 4 座城市做編輯導語（此為原創文案，非第三方內容）。
++const cityTaglines: Record<string, string> = {
++  taipei: '巷弄麵攤與老派冰室',
++  tainan: '早餐從牛肉湯開始',
++  taichung: '市場小吃一路吃到宵夜',
++  kaohsiung: '港邊海鮮與鹽埕老味',
++};
++const cityGuide = Object.keys(cityTaglines)
++  .map((id) => popularRegions.find((r) => r.id === id))
++  .filter((r): r is NonNullable<typeof r> => Boolean(r));
+ ---
+ <BaseLayout title="首頁">
+   <section class="hero">
+-    <h1>找到附近最對味的餐廳與小吃</h1>
+-    <form class="search" action="/search" method="get">
+-      <input type="text" name="q" placeholder="輸入餐廳名稱、地區或料理類型" />
+-      <button type="submit">搜尋</button>
+-    </form>
++    <div class="hero-copy">
++      <div class="badge">
++        <span class="dot"></span>
++        已收錄 {totalCount} 家店家資訊，持續新增中
++      </div>
++      <h1>找到附近<br />最對味的那一攤</h1>
++      <p class="lede">從巷口麵攤到老字號餐廳，依你的地區、分類與分級，挑出真正值得排隊的那一家。</p>
++      <form class="search" action="/search" method="get">
++        <div class="search-scope">
++          <span class="label">地點</span>
++          <span class="value">全台</span>
++        </div>
++        <input type="text" name="q" placeholder="想吃什麼？牛肉麵、滷肉飯…" />
++        <button type="submit">搜尋</button>
++      </form>
++      <div class="hot-words">
++        {homeCategories.slice(0, 5).map((c) => (
++          <a href={`/category/${c.id}`}>{c.name}</a>
++        ))}
++      </div>
++    </div>
++    <div class="hero-visual">
++      <div class="hero-image" aria-hidden="true">
++        <span>放一張夜市或店內照片</span>
++      </div>
++      {topPick && (
++        <div class="hero-callout">
++          <div class="callout-label">編輯本週精選</div>
++          <div class="callout-name">{topPick.data.name}</div>
++          <div class="callout-meta">
++            {topPickRegion?.name}・{topPickDistrict?.name}{topPick.data.priceRange ? ` ・ ${topPick.data.priceRange}` : ''}
++          </div>
++        </div>
++      )}
++    </div>
+   </section>
+ 
+-  <section class="regions">
+-    <h2>熱門地區</h2>
+-    <div class="chip-row">
+-      {popularRegions.map((r) => (
+-        <a class="chip" href={`/region/${r.id}`}>{r.name}</a>
+-      ))}
++  <section id="nearby" class="nearby">
++    <div class="section-head">
++      <div>
++        <h2>附近推薦</h2>
++        <p class="section-sub">{featured.length} 家店家 · 依分級排序</p>
++      </div>
+     </div>
++
++    {homeCategories.length > 0 && (
++      <div class="filter-row" role="group" aria-label="依分類篩選">
++        <button type="button" class="pill is-active" data-cat="全部">全部</button>
++        {homeCategories.map((c) => (
++          <button type="button" class="pill" data-cat={c.name}>{c.name}</button>
++        ))}
++      </div>
++    )}
++
++    {featured.length > 0 ? (
++      <div class="feature-grid" id="feature-grid">
++        {featured.map((r) => (
++          <RestaurantFeatureCard
++            slug={r.id}
++            name={r.data.name}
++            regionId={r.data.regionId}
++            districtId={r.data.districtId}
++            categoryName={getCategory(r.data.categoryId)?.name ?? r.data.categoryId}
++            tierId={r.data.tierId}
++            description={r.data.description}
++            priceRange={r.data.priceRange}
++            openingHours={r.data.openingHours}
++          />
++        ))}
++      </div>
++    ) : (
++      <p class="empty">店家資料建置中，很快就會有第一批推薦名單。</p>
++    )}
+   </section>
+ 
+-  <section class="categories">
+-    <h2>依料理分類</h2>
+-    <div class="category-grid">
+-      {homeCategories.map((c) => (
+-        <CategoryCard id={c.id} name={c.name} subcategories={c.subcategories} />
+-      ))}
++  <section id="ranking" class="ranking">
++    <div class="section-head">
++      <div>
++        <h2>本週人氣小吃</h2>
++        <p class="section-sub">編輯依分級與最近複核日期挑選，每週更新</p>
++      </div>
++      <a href="/category">看完整分類</a>
+     </div>
+-    {moreCategories.length > 0 && (
+-      <details class="more-categories">
+-        <summary>更多分類</summary>
+-        <div class="category-grid">
+-          {moreCategories.map((c) => (
+-            <CategoryCard id={c.id} name={c.name} subcategories={c.subcategories} />
+-          ))}
+-        </div>
+-      </details>
++    {ranking.length > 0 ? (
++      <div class="ranking-grid">
++        {ranking.map((r, i) => {
++          const region = getRegion(r.data.regionId);
++          const district = region?.districts.find((d) => d.id === r.data.districtId);
++          return (
++            <a href={`/restaurant/${r.id}`} class="ranking-row">
++              <span class="no">{String(i + 1).padStart(2, '0')}</span>
++              <div class="ranking-info">
++                <div class="ranking-name">{r.data.name}</div>
++                <div class="ranking-where">{region?.name}・{district?.name}</div>
++              </div>
++              <TierBadge tierId={r.data.tierId} />
++            </a>
++          );
++        })}
++      </div>
++    ) : (
++      <p class="empty">目前還沒有可以排行的店家，敬請期待。</p>
+     )}
+   </section>
+ 
+-  <section class="featured">
+-    <div class="featured-header">
+-      <h2>本週精選</h2>
+-      <a href="/ranking">查看完整排行榜 →</a>
+-    </div>
+-    <div class="restaurant-list">
+-      {featured.map((r) => (
+-        <RestaurantCard
+-          slug={r.id}
+-          name={r.data.name}
+-          regionId={r.data.regionId}
+-          districtId={r.data.districtId}
+-          categoryName={getCategory(r.data.categoryId)?.name ?? r.data.categoryId}
+-          tierId={r.data.tierId}
+-        />
++  <section id="cities" class="cities">
++    <h2>城市指南</h2>
++    <p class="section-sub">在地編輯挑選的路線，一天吃透一座城</p>
++    <div class="city-grid">
++      {cityGuide.map((region) => (
++        <a href={`/region/${region.id}`} class="city-card">
++          <span class="city-name">{region.name}</span>
++          <span class="city-desc">{cityTaglines[region.id]}</span>
++        </a>
+       ))}
+     </div>
+   </section>
+ </BaseLayout>
+ 
++<script>
++  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-row .pill');
++  const cards = document.querySelectorAll<HTMLElement>('#feature-grid [data-category]');
++  buttons.forEach((btn) => {
++    btn.addEventListener('click', () => {
++      buttons.forEach((b) => b.classList.remove('is-active'));
++      btn.classList.add('is-active');
++      const cat = btn.dataset.cat;
++      cards.forEach((card) => {
++        const match = cat === '全部' || card.dataset.category === cat;
++        card.style.display = match ? '' : 'none';
++      });
++    });
++  });
++</script>
++
+ <style>
+-  .hero { text-align: center; padding: 1.5rem 0 2rem; }
+-  .search { display: flex; max-width: 480px; margin: 1rem auto 0; gap: 8px; }
+-  .search input { flex: 1; padding: 8px 12px; }
+-  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+-  .chip { padding: 6px 14px; border: 0.5px solid #ddd; border-radius: 8px; text-decoration: none; color: inherit; }
+-  .category-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; margin-top: 0.5rem; }
+-  .more-categories { margin-top: 12px; }
+-  .more-categories summary { cursor: pointer; font-size: 13px; color: #888; }
+-  .featured-header { display: flex; justify-content: space-between; align-items: center; }
+-  .restaurant-list { display: flex; flex-direction: column; gap: 10px; margin-top: 0.75rem; }
++  .hero {
++    display: grid;
++    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
++    gap: 56px;
++    align-items: center;
++    padding: 56px 0 40px;
++  }
++  .badge {
++    display: inline-flex;
++    align-items: center;
++    gap: 9px;
++    padding: 7px 14px;
++    background: var(--surface-1);
++    border-radius: 999px;
++    font-size: 13px;
++    color: #7a5a3a;
++    letter-spacing: 0.5px;
++    margin-bottom: 24px;
++  }
++  .badge .dot {
++    width: 6px;
++    height: 6px;
++    border-radius: 50%;
++    background: var(--accent);
++  }
++  .hero h1 {
++    font-weight: 900;
++    font-size: 52px;
++    line-height: 1.18;
++    margin: 0 0 18px;
++    letter-spacing: -1px;
++  }
++  .lede {
++    font-size: 16px;
++    line-height: 1.85;
++    color: var(--text-secondary);
++    margin: 0 0 30px;
++    max-width: 460px;
++  }
++  .search {
++    display: flex;
++    align-items: stretch;
++    background: var(--surface-0);
++    border: 1px solid var(--border);
++    border-radius: 14px;
++    padding: 8px;
++    box-shadow: 0 10px 30px -18px rgba(58, 40, 22, 0.35);
++    max-width: 560px;
++  }
++  .search-scope {
++    display: flex;
++    flex-direction: column;
++    gap: 2px;
++    padding: 8px 14px;
++    flex: 0 0 110px;
++    border-right: 1px solid var(--surface-2);
++  }
++  .search-scope .label {
++    font-size: 11px;
++    color: var(--text-muted);
++    letter-spacing: 0.5px;
++  }
++  .search-scope .value {
++    font-size: 15px;
++    font-weight: 500;
++  }
++  .search input {
++    flex: 1;
++    min-width: 0;
++    border: 0;
++    outline: none;
++    padding: 0 16px;
++    font-size: 15px;
++    font-family: 'Noto Sans TC', sans-serif;
++    background: transparent;
++    color: var(--text-primary);
++  }
++  .search button {
++    border: 0;
++    background: var(--accent);
++    color: #fff;
++    font-family: 'Noto Sans TC', sans-serif;
++    font-size: 15px;
++    font-weight: 500;
++    padding: 0 24px;
++    border-radius: 9px;
++    cursor: pointer;
++  }
++  .search button:hover {
++    background: var(--accent-hover);
++  }
++  .hot-words {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 10px;
++    margin-top: 18px;
++  }
++  .hot-words a {
++    padding: 7px 14px;
++    background: var(--surface-0);
++    border: 1px solid var(--border);
++    border-radius: 999px;
++    font-size: 13px;
++    color: var(--text-secondary);
++  }
++  .hot-words a:hover {
++    border-color: var(--accent);
++    color: var(--accent);
++  }
++
++  .hero-visual {
++    position: relative;
++  }
++  .hero-image {
++    position: relative;
++    height: 380px;
++    border-radius: 20px;
++    overflow: hidden;
++    background: linear-gradient(135deg, var(--surface-1), var(--surface-2));
++    display: flex;
++    align-items: center;
++    justify-content: center;
++  }
++  .hero-image span {
++    font-family: 'Noto Serif TC', serif;
++    color: var(--text-muted);
++    font-size: 15px;
++  }
++  .hero-callout {
++    position: absolute;
++    bottom: -24px;
++    left: -12px;
++    background: var(--surface-0);
++    border: 1px solid var(--border);
++    border-radius: 14px;
++    padding: 16px 20px;
++    box-shadow: 0 14px 34px -20px rgba(58, 40, 22, 0.4);
++    max-width: 260px;
++  }
++  .callout-label {
++    font-size: 12px;
++    color: var(--text-muted);
++    letter-spacing: 0.5px;
++    margin-bottom: 6px;
++  }
++  .callout-name {
++    font-family: 'Noto Serif TC', serif;
++    font-weight: 700;
++    font-size: 17px;
++  }
++  .callout-meta {
++    font-size: 13px;
++    color: var(--text-secondary);
++    margin-top: 4px;
++  }
++
++  .section-head {
++    display: flex;
++    align-items: flex-end;
++    justify-content: space-between;
++    gap: 24px;
++    margin-bottom: 24px;
++  }
++  .section-head h2 {
++    font-weight: 700;
++    font-size: 30px;
++    margin: 0 0 8px;
++  }
++  .section-sub {
++    margin: 0;
++    font-size: 14px;
++    color: var(--text-secondary);
++  }
++
++  .nearby {
++    padding-top: 64px;
++  }
++  .filter-row {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 10px;
++    padding-bottom: 24px;
++    border-bottom: 1px solid var(--border);
++    margin-bottom: 28px;
++  }
++  .pill {
++    padding: 9px 18px;
++    border-radius: 999px;
++    font-size: 14px;
++    font-family: 'Noto Sans TC', sans-serif;
++    cursor: pointer;
++    background: var(--surface-0);
++    color: var(--text-secondary);
++    border: 1px solid var(--border);
++  }
++  .pill.is-active {
++    background: var(--text-primary);
++    color: var(--bg-page);
++    border-color: var(--text-primary);
++  }
++  .feature-grid {
++    display: grid;
++    grid-template-columns: repeat(3, 1fr);
++    gap: 24px;
++  }
++
++  .ranking {
++    margin-top: 72px;
++    background: var(--surface-2);
++    border-radius: 22px;
++    padding: 40px 36px;
++  }
++  .ranking-grid {
++    display: grid;
++    grid-template-columns: repeat(2, 1fr);
++    gap: 0 48px;
++  }
++  .ranking-row {
++    display: flex;
++    align-items: center;
++    gap: 16px;
++    padding: 16px 0;
++    border-bottom: 1px solid var(--border);
++    color: inherit;
++  }
++  .ranking-row:hover {
++    color: inherit;
++  }
++  .ranking-row .no {
++    font-family: 'Noto Serif TC', serif;
++    font-weight: 900;
++    font-size: 24px;
++    color: var(--accent);
++    min-width: 36px;
++  }
++  .ranking-info {
++    flex: 1;
++    min-width: 0;
++  }
++  .ranking-name {
++    font-size: 16px;
++    font-weight: 500;
++  }
++  .ranking-where {
++    font-size: 13px;
++    color: var(--text-secondary);
++    margin-top: 3px;
++  }
++
++  .cities {
++    padding-top: 72px;
++  }
++  .cities h2 {
++    font-weight: 700;
++    font-size: 30px;
++    margin: 0 0 8px;
++  }
++  .city-grid {
++    display: grid;
++    grid-template-columns: repeat(4, 1fr);
++    gap: 18px;
++    margin-top: 24px;
++  }
++  .city-card {
++    position: relative;
++    height: 200px;
++    border-radius: 16px;
++    overflow: hidden;
++    background: linear-gradient(160deg, #8a6a45, #4a3624);
++    display: flex;
++    align-items: flex-end;
++    padding: 18px;
++  }
++  .city-name {
++    display: block;
++    font-family: 'Noto Serif TC', serif;
++    font-weight: 700;
++    font-size: 20px;
++    color: #fff;
++  }
++  .city-desc {
++    display: block;
++    font-size: 13px;
++    color: rgba(255, 255, 255, 0.82);
++    margin-top: 2px;
++  }
++  .city-card {
++    flex-direction: column;
++    align-items: flex-start;
++  }
++
++  .empty {
++    padding: 40px 0;
++    text-align: center;
++    font-size: 14px;
++    color: var(--text-muted);
++  }
++
++  @media (max-width: 960px) {
++    .hero {
++      grid-template-columns: 1fr;
++    }
++    .feature-grid {
++      grid-template-columns: repeat(2, 1fr);
++    }
++    .ranking-grid {
++      grid-template-columns: 1fr;
++    }
++    .city-grid {
++      grid-template-columns: repeat(2, 1fr);
++    }
++  }
++  @media (max-width: 560px) {
++    .feature-grid {
++      grid-template-columns: 1fr;
++    }
++    .city-grid {
++      grid-template-columns: 1fr;
++    }
++    .hero h1 {
++      font-size: 38px;
++    }
++  }
+ </style>

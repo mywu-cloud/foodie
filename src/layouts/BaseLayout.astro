@@ -12,46 +12,191 @@ const { title, description = '台灣分區分類分級美食查詢' } = Astro.pr
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>{title} | 台灣美食通</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <header class="site-header">
-      <a href="/" class="logo">台灣美食通</a>
-      <nav>
-        <a href="/region">地區</a>
-        <a href="/category">分類</a>
-        <a href="/ranking">排行榜</a>
-      </nav>
-    </header>
-    <main>
-      <slot />
-    </main>
-    <footer class="site-footer">
-      <p>資料由編輯團隊人工建檔與複核，非自動爬取第三方評分。</p>
-    </footer>
+    <div class="page">
+      <header class="site-header">
+        <a href="/" class="brand">
+          <span class="brand-name">台灣美食通</span>
+          <span class="brand-kicker">TAIWAN EATS</span>
+        </a>
+        <nav>
+          <a href="/#nearby">附近美食</a>
+          <a href="/#ranking">人氣排行</a>
+          <a href="/#cities">城市指南</a>
+          <a href="/category">分類瀏覽</a>
+        </nav>
+      </header>
+      <main>
+        <slot />
+      </main>
+      <footer class="site-footer">
+        <span class="brand-name">台灣美食通</span>
+        <div class="footer-links">
+          <a href="/">店家合作</a>
+          <a href="/">資料來源</a>
+          <a href="/">意見回饋</a>
+        </div>
+        <p>資料由編輯團隊人工建檔與複核，非自動爬取第三方評分。© {new Date().getFullYear()} 台灣美食通</p>
+      </footer>
+    </div>
   </body>
 </html>
 
-<style>
+<style is:global>
+  :root {
+    /* 品牌色票 — 對應台灣美食通設計稿（暖色系、手寫感標題字） */
+    --bg-page: #fbf7f0;
+    --text-primary: #241c16;
+    --text-secondary: #5c5248;
+    --text-muted: #8c8074;
+    --border: #e8dfd1;
+    --border-strong: #dccdb6;
+    --accent: #c0402d;
+    --accent-hover: #8e2c1e;
+    --surface-0: #ffffff;
+    --surface-1: #f1e7d8;
+    --surface-2: #f4ede1;
+    --open-color: #3f6b4a;
+
+    /* 分級語意色票（供 TierBadge 使用，四個分級各一組） */
+    --bg-danger: #f7e2d9;
+    --text-danger: #a3341f;
+    --bg-warning: #f6ecd2;
+    --text-warning: #8a611c;
+    --text-secondary-badge: var(--text-secondary);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-family: 'Noto Sans TC', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--accent-hover);
+  }
+
+  ::selection {
+    background: #f3d9c2;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: 'Noto Serif TC', serif;
+  }
+
+  .page {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
   .site-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1.5rem;
-    border-bottom: 0.5px solid #e5e5e5;
+    padding: 26px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    color: var(--text-primary);
+  }
+  .brand:hover {
+    color: var(--text-primary);
+  }
+  .brand-name {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+  .brand-kicker {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
   }
   .site-header nav {
     display: flex;
-    gap: 1.25rem;
+    align-items: center;
+    gap: 28px;
+    font-size: 15px;
+    color: var(--text-secondary);
   }
+  .site-header nav a {
+    color: var(--text-secondary);
+  }
+  .site-header nav a:hover {
+    color: var(--accent);
+  }
+
   main {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 1.5rem;
+    padding: 0 40px 96px;
   }
+
   .site-footer {
-    text-align: center;
-    padding: 1.5rem;
-    font-size: 0.8rem;
-    color: #888;
+    margin-top: 40px;
+    padding: 32px 40px 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .site-footer .brand-name {
+    font-size: 16px;
+    color: var(--text-primary);
+  }
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+  .footer-links a {
+    color: var(--text-muted);
+  }
+  .site-footer p {
+    width: 100%;
+    margin: 0;
+    order: 3;
+  }
+
+  @media (max-width: 720px) {
+    .site-header {
+      padding: 18px 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .site-header nav {
+      gap: 16px;
+      font-size: 13px;
+    }
+    main {
+      padding: 0 20px 64px;
+    }
+    .site-footer {
+      padding: 24px 20px 32px;
+    }
   }
 </style>

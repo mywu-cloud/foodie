@@ -1,0 +1,114 @@
+---
+// 首頁「附近推薦」用的大卡片版型 — 對應設計稿的照片卡，取代原本設計稿裡的假評分（4.8 顆星）
+// 以真實資料的 TierBadge（人工分級）呈現，理由見 CLAUDE.md：本站分級不採第三方自動評分。
+import TierBadge from './TierBadge.astro';
+import { getRegion } from '../lib/taxonomy';
+
+interface Props {
+  slug: string;
+  name: string;
+  regionId: string;
+  districtId: string;
+  categoryName: string;
+  tierId: string;
+  description: string;
+  priceRange?: string;
+  openingHours?: string;
+}
+const { slug, name, regionId, districtId, categoryName, tierId, description, priceRange, openingHours } =
+  Astro.props;
+const region = getRegion(regionId);
+const district = region?.districts.find((d) => d.id === districtId);
+---
+<article class="feature-card" data-category={categoryName}>
+  <a href={`/restaurant/${slug}`} class="thumb" aria-label={name}>
+    <span class="thumb-label">{name}</span>
+  </a>
+  <div class="body">
+    <div class="title-row">
+      <h3><a href={`/restaurant/${slug}`}>{name}</a></h3>
+      <TierBadge tierId={tierId} />
+    </div>
+    <p class="desc">{description}</p>
+    <div class="meta-row">
+      <span>{region?.name}・{district?.name}</span>
+      <span>{categoryName}</span>
+      {priceRange && <span>{priceRange}</span>}
+      {openingHours && <span>{openingHours}</span>}
+    </div>
+  </div>
+</article>
+
+<style>
+  .feature-card {
+    background: var(--surface-0, #fff);
+    border: 1px solid var(--border, #ebe2d4);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.15s ease;
+  }
+  .feature-card:hover {
+    border-color: var(--border-strong, #dccdb6);
+  }
+  .thumb {
+    position: relative;
+    height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--surface-1, #f1e7d8), var(--surface-2, #f4ede1));
+    text-decoration: none;
+  }
+  .thumb-label {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-muted, #9a8e80);
+    padding: 0 16px;
+    text-align: center;
+  }
+  .body {
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .title-row h3 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    min-width: 0;
+  }
+  .title-row h3 a {
+    color: var(--text-primary, inherit);
+  }
+  .desc {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary, #6b6055);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--surface-2, #f2eae0);
+    font-size: 13px;
+    color: var(--text-muted, #7a6e62);
+  }
+</style>
