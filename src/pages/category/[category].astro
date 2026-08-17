@@ -1,0 +1,43 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RestaurantCard from '../../components/RestaurantCard.astro';
+import { categories, getCategory, getCategory as resolveCategory } from '../../lib/taxonomy';
+
+export async function getStaticPaths() {
+  return categories.map((c) => ({ params: { category: c.id } }));
+}
+
+const { category: categoryId } = Astro.params;
+const category = getCategory(categoryId as string);
+const allRestaurants = await getCollection('restaurants');
+const results = allRestaurants.filter((r) => r.data.categoryId === categoryId);
+---
+<BaseLayout title={category?.name ?? '分類'}>
+  <h1>{category?.name}</h1>
+  {category && category.subcategories.length > 0 && (
+    <div class="subcategory-links">
+      {category.subcategories.map((sub) => (
+        <a href={`/category/${category.id}/${sub.id}`}>{sub.name}</a>
+      ))}
+    </div>
+  )}
+  <div class="restaurant-list">
+    {results.map((r) => (
+      <RestaurantCard
+        slug={r.id}
+        name={r.data.name}
+        regionId={r.data.regionId}
+        districtId={r.data.districtId}
+        categoryName={resolveCategory(r.data.categoryId)?.name ?? r.data.categoryId}
+        tierId={r.data.tierId}
+      />
+    ))}
+    {results.length === 0 && <p>這個分類還沒有收錄餐廳，敬請期待。</p>}
+  </div>
+</BaseLayout>
+
+<style>
+  .subcategory-links { display: flex; gap: 12px; margin: 0.5rem 0 1rem; }
+  .restaurant-list { display: flex; flex-direction: column; gap: 10px; }
+</style>

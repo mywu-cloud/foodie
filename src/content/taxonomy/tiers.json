@@ -1,0 +1,9 @@
+{
+  "$schema": "分級資料：全部由編輯手動指派，不從第三方評分自動推算。color 對應 CDS 語意 token。",
+  "tiers": [
+    { "id": "must-eat", "name": "必吃首選", "order": 1, "colorToken": "danger" },
+    { "id": "recommended", "name": "巷弄推薦", "order": 2, "colorToken": "warning" },
+    { "id": "local-favorite", "name": "在地口碑", "order": 3, "colorToken": "neutral" },
+    { "id": "unrated", "name": "待評鑑", "order": 4, "colorToken": "muted" }
+  ]
+}

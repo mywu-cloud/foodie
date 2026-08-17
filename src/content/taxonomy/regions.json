@@ -1,0 +1,89 @@
+{
+  "$schema": "分區資料：縣市 -> 鄉鎮市區。popular=true 的縣市會出現在首頁快速入口。",
+  "regions": [
+    {
+      "id": "taipei",
+      "name": "台北",
+      "popular": true,
+      "districts": [
+        { "id": "daan", "name": "大安區" },
+        { "id": "xinyi", "name": "信義區" },
+        { "id": "zhongshan", "name": "中山區" },
+        { "id": "wanhua", "name": "萬華區" }
+      ]
+    },
+    {
+      "id": "hsinchu",
+      "name": "新竹",
+      "popular": true,
+      "districts": [
+        { "id": "east", "name": "東區" },
+        { "id": "north", "name": "北區" }
+      ]
+    },
+    {
+      "id": "taichung",
+      "name": "台中",
+      "popular": true,
+      "districts": [
+        { "id": "west", "name": "西區" },
+        { "id": "beitun", "name": "北屯區" },
+        { "id": "xitun", "name": "西屯區" }
+      ]
+    },
+    {
+      "id": "chiayi",
+      "name": "嘉義",
+      "popular": true,
+      "districts": [
+        { "id": "east", "name": "東區" },
+        { "id": "west", "name": "西區" }
+      ]
+    },
+    {
+      "id": "tainan",
+      "name": "台南",
+      "popular": true,
+      "districts": [
+        { "id": "zhongxi", "name": "中西區" },
+        { "id": "anping", "name": "安平區" }
+      ]
+    },
+    {
+      "id": "kaohsiung",
+      "name": "高雄",
+      "popular": true,
+      "districts": [
+        { "id": "yancheng", "name": "鹽埕區" },
+        { "id": "qianzhen", "name": "前鎮區" },
+        { "id": "lingya", "name": "苓雅區" },
+        { "id": "zuoying", "name": "左營區" }
+      ]
+    },
+    {
+      "id": "taitung",
+      "name": "台東",
+      "popular": true,
+      "districts": [
+        { "id": "taitung-city", "name": "台東市" }
+      ]
+    },
+    {
+      "id": "hualien",
+      "name": "花蓮",
+      "popular": true,
+      "districts": [
+        { "id": "hualien-city", "name": "花蓮市" }
+      ]
+    },
+    {
+      "id": "new-taipei",
+      "name": "新北",
+      "popular": false,
+      "districts": [
+        { "id": "banqiao", "name": "板橋區" },
+        { "id": "sanchong", "name": "三重區" }
+      ]
+    }
+  ]
+}

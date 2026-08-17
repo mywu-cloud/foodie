@@ -1,0 +1,57 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = '台灣分區分類分級美食查詢' } = Astro.props;
+---
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title} | 台灣美食通</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/" class="logo">台灣美食通</a>
+      <nav>
+        <a href="/region">地區</a>
+        <a href="/category">分類</a>
+        <a href="/ranking">排行榜</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>資料由編輯團隊人工建檔與複核，非自動爬取第三方評分。</p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 0.5px solid #e5e5e5;
+  }
+  .site-header nav {
+    display: flex;
+    gap: 1.25rem;
+  }
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+  .site-footer {
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 0.8rem;
+    color: #888;
+  }
+</style>

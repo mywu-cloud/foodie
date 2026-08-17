@@ -1,0 +1,56 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import TierBadge from '../../components/TierBadge.astro';
+import { getRegion, getCategory } from '../../lib/taxonomy';
+
+export async function getStaticPaths() {
+  const restaurants = await getCollection('restaurants');
+  return restaurants.map((r) => ({ params: { slug: r.id } }));
+}
+
+const { slug } = Astro.params;
+const entry = await getEntry('restaurants', slug as string);
+if (!entry) throw new Error(`Restaurant not found: ${slug}`);
+const { data } = entry;
+const region = getRegion(data.regionId);
+const district = region?.districts.find((d) => d.id === data.districtId);
+const category = getCategory(data.categoryId);
+---
+<BaseLayout title={data.name} description={data.description}>
+  <article>
+    <header>
+      <h1>{data.name}</h1>
+      <TierBadge tierId={data.tierId} />
+    </header>
+    <p class="meta">{region?.name}・{district?.name}・{category?.name}</p>
+    <p class="description">{data.description}</p>
+
+    <dl>
+      <dt>地址</dt><dd>{data.address}</dd>
+      {data.phone && <><dt>電話</dt><dd>{data.phone}</dd></>}
+      {data.openingHours && <><dt>營業時間</dt><dd>{data.openingHours}</dd></>}
+      {data.priceRange && <><dt>價位</dt><dd>{data.priceRange}</dd></>}
+    </dl>
+
+    {data.tags.length > 0 && (
+      <div class="tags">
+        {data.tags.map((tag) => <span class="tag">{tag}</span>)}
+      </div>
+    )}
+
+    <p class="reviewed">最後複核日期：{data.lastReviewedAt}</p>
+  </article>
+</BaseLayout>
+
+<style>
+  article { max-width: 640px; }
+  header { display: flex; align-items: center; gap: 12px; }
+  .meta { color: #888; font-size: 13px; }
+  dl { display: grid; grid-template-columns: 80px 1fr; gap: 6px 12px; margin: 1rem 0; }
+  dt { color: #888; font-size: 13px; }
+  dd { margin: 0; font-size: 14px; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 0.5rem 0; }
+  .tag { background: #f2f2f2; border-radius: 6px; padding: 2px 8px; font-size: 12px; }
+  .reviewed { color: #aaa; font-size: 12px; }
+</style>

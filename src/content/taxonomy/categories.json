@@ -1,0 +1,33 @@
+{
+  "$schema": "分類資料：一級分類 + 可選的二級細分類。首頁只顯示 showOnHome=true 的項目，其餘收進「更多分類」。",
+  "categories": [
+    { "id": "chinese", "name": "中式", "showOnHome": true, "subcategories": [] },
+    { "id": "taiwanese", "name": "台式", "showOnHome": true, "subcategories": [] },
+    { "id": "japanese", "name": "日式", "showOnHome": true, "subcategories": [] },
+    { "id": "korean", "name": "韓式", "showOnHome": true, "subcategories": [] },
+    { "id": "western", "name": "西式", "showOnHome": false, "subcategories": [] },
+    { "id": "southeast-asian", "name": "東南亞", "showOnHome": false, "subcategories": [] },
+    { "id": "seafood", "name": "海鮮", "showOnHome": true, "subcategories": [] },
+    { "id": "hotpot-bbq", "name": "火鍋燒烤", "showOnHome": true, "subcategories": [] },
+    { "id": "snacks", "name": "小吃", "showOnHome": true, "subcategories": [] },
+    { "id": "dessert", "name": "甜點", "showOnHome": false, "subcategories": [] },
+    {
+      "id": "coffee",
+      "name": "咖啡",
+      "showOnHome": true,
+      "subcategories": [
+        { "id": "specialty-coffee", "name": "自家烘焙咖啡" },
+        { "id": "chain-coffee", "name": "連鎖咖啡" }
+      ]
+    },
+    {
+      "id": "drinks",
+      "name": "飲料",
+      "showOnHome": false,
+      "subcategories": [
+        { "id": "bubble-tea", "name": "手搖飲" },
+        { "id": "fruit-tea", "name": "果茶" }
+      ]
+    }
+  ]
+}

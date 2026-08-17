@@ -1,0 +1,56 @@
+---
+interface Subcategory {
+  id: string;
+  name: string;
+}
+interface Props {
+  id: string;
+  name: string;
+  subcategories?: Subcategory[];
+}
+const { id, name, subcategories = [] } = Astro.props;
+---
+<div class="category-card">
+  <a href={`/category/${id}`} class="category-main">{name}</a>
+  {subcategories.length > 0 && (
+    <details class="subcategories">
+      <summary>展開細分類</summary>
+      <ul>
+        {subcategories.map((sub) => (
+          <li><a href={`/category/${id}/${sub.id}`}>{sub.name}</a></li>
+        ))}
+      </ul>
+    </details>
+  )}
+</div>
+
+<style>
+  .category-card {
+    background: #f7f7f5;
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .category-main {
+    display: block;
+    font-size: 13px;
+    text-decoration: none;
+    color: inherit;
+  }
+  .subcategories summary {
+    font-size: 11px;
+    color: #888;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  .subcategories ul {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 0;
+  }
+  .subcategories a {
+    font-size: 12px;
+    text-decoration: none;
+    color: inherit;
+  }
+</style>
