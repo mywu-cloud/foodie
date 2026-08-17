@@ -52,3 +52,4 @@ scripts/fetch-data.mjs    資料同步腳本（GitHub Actions 排程執行）
 ## 資料授權聲明
 
 不長期快取、重製第三方平台（如 Google）的評分或評論內容；分級與店家介紹皆為原創編輯內容。
+# foodie
