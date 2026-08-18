@@ -1,15 +1,27 @@
 {
   "$schema": "分類資料：一級分類 + 可選的二級細分類。首頁只顯示 showOnHome=true 的項目，其餘收進「更多分類」。",
   "categories": [
-    { "id": "chinese", "name": "中式", "showOnHome": true, "subcategories": [] },
     { "id": "taiwanese", "name": "台式", "showOnHome": true, "subcategories": [] },
+    { "id": "chinese", "name": "中式", "showOnHome": true, "subcategories": [] },
+    {
+      "id": "western",
+      "name": "西式",
+      "showOnHome": false,
+      "subcategories": [
+        { "id": "french", "name": "法式" },
+        { "id": "italian", "name": "義式" },
+        { "id": "spanish", "name": "西班牙式" },
+        { "id": "mexican", "name": "墨西哥式" }
+      ]
+    },
     { "id": "japanese", "name": "日式", "showOnHome": true, "subcategories": [] },
     { "id": "korean", "name": "韓式", "showOnHome": true, "subcategories": [] },
-    { "id": "western", "name": "西式", "showOnHome": false, "subcategories": [] },
-    { "id": "southeast-asian", "name": "東南亞", "showOnHome": false, "subcategories": [] },
     { "id": "seafood", "name": "海鮮", "showOnHome": true, "subcategories": [] },
-    { "id": "hotpot-bbq", "name": "火鍋燒烤", "showOnHome": true, "subcategories": [] },
+    { "id": "teppanyaki", "name": "鐵板燒", "showOnHome": false, "subcategories": [] },
+    { "id": "hotpot", "name": "火鍋", "showOnHome": true, "subcategories": [] },
+    { "id": "bbq", "name": "燒烤", "showOnHome": true, "subcategories": [] },
     { "id": "snacks", "name": "小吃", "showOnHome": true, "subcategories": [] },
+    { "id": "bakery", "name": "麵包", "showOnHome": false, "subcategories": [] },
     { "id": "dessert", "name": "甜點", "showOnHome": false, "subcategories": [] },
     {
       "id": "coffee",

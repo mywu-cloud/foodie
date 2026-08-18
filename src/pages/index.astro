@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import RestaurantFeatureCard from '../components/RestaurantFeatureCard.astro';
 import TierBadge from '../components/TierBadge.astro';
-import { popularRegions, homeCategories, getCategory, getRegion, tiers } from '../lib/taxonomy';
+import { popularRegions, homeCategories, categories, regions, getCategory, getRegion, tiers } from '../lib/taxonomy';
 
 const allRestaurants = await getCollection('restaurants');
 const totalCount = allRestaurants.length;
@@ -55,12 +55,76 @@ const cityGuide = Object.keys(cityTaglines)
       </div>
       <h1>找到附近<br />最對味的那一攤</h1>
       <p class="lede">從巷口麵攤到老字號餐廳，依你的地區、分類與分級，挑出真正值得排隊的那一家。</p>
-      <form class="search" action="/search" method="get">
-        <div class="search-scope">
-          <span class="label">地點</span>
-          <span class="value">全台</span>
+      <form class="search" action="/search" method="get" id="search-form">
+        <div class="search-field" data-field="location">
+          <button type="button" class="field-trigger" aria-expanded="false" aria-haspopup="listbox">
+            <span class="label">地點</span>
+            <span class="value" data-summary>全台</span>
+          </button>
+          <div class="dropdown-panel" role="listbox" aria-label="選擇地區" hidden>
+            {regions.map((r) => (
+              <div class="dropdown-group">
+                <label class="group-label">
+                  <input type="checkbox" class="parent-checkbox" data-parent={r.id} />
+                  {r.name}
+                </label>
+                <div class="child-list">
+                  {r.districts.map((d) => (
+                    <label class="child-label">
+                      <input
+                        type="checkbox"
+                        class="child-checkbox"
+                        data-parent={r.id}
+                        name="district"
+                        value={`${r.id}:${d.id}`}
+                      />
+                      {d.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <input type="text" name="q" placeholder="想吃什麼？牛肉麵、滷肉飯…" />
+        <div class="search-field" data-field="category">
+          <button type="button" class="field-trigger" aria-expanded="false" aria-haspopup="listbox">
+            <span class="label">餐點類型</span>
+            <span class="value" data-summary>不限</span>
+          </button>
+          <div class="dropdown-panel" role="listbox" aria-label="選擇餐點類型" hidden>
+            {categories.map((c) => (
+              <div class="dropdown-group">
+                <label class="group-label">
+                  <input
+                    type="checkbox"
+                    class={c.subcategories.length > 0 ? 'parent-checkbox' : 'child-checkbox'}
+                    data-parent={c.id}
+                    name={c.subcategories.length > 0 ? undefined : 'category'}
+                    value={c.subcategories.length > 0 ? undefined : c.id}
+                  />
+                  {c.name}
+                </label>
+                {c.subcategories.length > 0 && (
+                  <div class="child-list">
+                    {c.subcategories.map((sub) => (
+                      <label class="child-label">
+                        <input
+                          type="checkbox"
+                          class="child-checkbox"
+                          data-parent={c.id}
+                          name="category"
+                          value={`${c.id}:${sub.id}`}
+                        />
+                        {sub.name}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+        <input type="text" name="q" placeholder="或輸入特定名稱：牛肉麵、滷肉飯…" />
         <button type="submit">搜尋</button>
       </form>
       <div class="hot-words">
@@ -181,6 +245,88 @@ const cityGuide = Object.keys(cityTaglines)
       });
     });
   });
+
+  // 地點／餐點類型 多選下拉選單
+  const fields = document.querySelectorAll<HTMLElement>('.search-field');
+
+  function closeAllPanels(except?: HTMLElement) {
+    fields.forEach((field) => {
+      if (field === except) return;
+      const trigger = field.querySelector<HTMLButtonElement>('.field-trigger');
+      const panel = field.querySelector<HTMLElement>('.dropdown-panel');
+      trigger?.setAttribute('aria-expanded', 'false');
+      if (panel) panel.hidden = true;
+    });
+  }
+
+  fields.forEach((field) => {
+    const trigger = field.querySelector<HTMLButtonElement>('.field-trigger');
+    const panel = field.querySelector<HTMLElement>('.dropdown-panel');
+    const summaryEl = field.querySelector<HTMLElement>('[data-summary]');
+    const defaultLabel = summaryEl?.textContent ?? '';
+    if (!trigger || !panel) return;
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+      closeAllPanels(field);
+      trigger.setAttribute('aria-expanded', String(!isOpen));
+      panel.hidden = isOpen;
+    });
+
+    const parentBoxes = panel.querySelectorAll<HTMLInputElement>('.parent-checkbox');
+    const childBoxes = panel.querySelectorAll<HTMLInputElement>('.child-checkbox');
+
+    function childrenOf(parentId: string) {
+      return panel!.querySelectorAll<HTMLInputElement>(`.child-checkbox[data-parent="${parentId}"]`);
+    }
+
+    function updateSummary() {
+      const checkedChildren = Array.from(childBoxes).filter((c) => c.checked);
+      if (checkedChildren.length === 0) {
+        if (summaryEl) summaryEl.textContent = defaultLabel;
+        return;
+      }
+      const label = checkedChildren[0].closest('label');
+      const firstText = label ? label.textContent!.trim() : '';
+      if (summaryEl) {
+        summaryEl.textContent =
+          checkedChildren.length === 1 ? firstText : `${firstText} 等 ${checkedChildren.length} 項`;
+      }
+    }
+
+    parentBoxes.forEach((parentBox) => {
+      const parentId = parentBox.dataset.parent!;
+      parentBox.addEventListener('change', () => {
+        childrenOf(parentId).forEach((child) => {
+          child.checked = parentBox.checked;
+        });
+        updateSummary();
+      });
+    });
+
+    childBoxes.forEach((childBox) => {
+      childBox.addEventListener('change', () => {
+        const parentId = childBox.dataset.parent!;
+        const parentBox = panel!.querySelector<HTMLInputElement>(`.parent-checkbox[data-parent="${parentId}"]`);
+        if (parentBox) {
+          const siblings = Array.from(childrenOf(parentId));
+          const checkedCount = siblings.filter((c) => c.checked).length;
+          parentBox.checked = checkedCount === siblings.length;
+          parentBox.indeterminate = checkedCount > 0 && checkedCount < siblings.length;
+        }
+        updateSummary();
+      });
+    });
+  });
+
+  document.addEventListener('click', () => closeAllPanels());
+  document.querySelectorAll<HTMLElement>('.dropdown-panel').forEach((panel) => {
+    panel.addEventListener('click', (e) => e.stopPropagation());
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAllPanels();
+  });
 </script>
 
 <style>
@@ -231,27 +377,92 @@ const cityGuide = Object.keys(cityTaglines)
     border-radius: 14px;
     padding: 8px;
     box-shadow: 0 10px 30px -18px rgba(58, 40, 22, 0.35);
-    max-width: 560px;
+    max-width: 720px;
     width: 100%;
   }
-  .search-scope {
+  .search-field {
+    position: relative;
+    flex: 0 0 128px;
+    border-right: 1px solid var(--surface-2);
+  }
+  .field-trigger {
+    all: unset;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding: 8px 14px;
-    flex: 0 0 110px;
-    border-right: 1px solid var(--surface-2);
+    width: 100%;
+    cursor: pointer;
+    border-radius: 8px;
   }
-  .search-scope .label {
+  .field-trigger:hover,
+  .field-trigger[aria-expanded='true'] {
+    background: var(--surface-2);
+  }
+  .field-trigger .label {
     font-size: 11px;
     color: var(--text-muted);
     letter-spacing: 0.5px;
   }
-  .search-scope .value {
-    font-size: 15px;
+  .field-trigger .value {
+    font-size: 14px;
     font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .search input {
+  .dropdown-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 260px;
+    max-height: 340px;
+    overflow-y: auto;
+    background: var(--surface-0);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 14px 34px -18px rgba(58, 40, 22, 0.4);
+    padding: 12px;
+    z-index: 20;
+  }
+  .dropdown-group {
+    margin-bottom: 10px;
+  }
+  .dropdown-group:last-child {
+    margin-bottom: 0;
+  }
+  .group-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+  .child-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 4px 0 0 24px;
+  }
+  .child-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 3px 0;
+  }
+  .search-field input[type='checkbox'] {
+    accent-color: var(--accent);
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+  .search input[type='text'] {
     flex: 1;
     min-width: 0;
     border: 0;
@@ -262,7 +473,7 @@ const cityGuide = Object.keys(cityTaglines)
     background: transparent;
     color: var(--text-primary);
   }
-  .search button {
+  .search button[type='submit'] {
     border: 0;
     background: var(--accent);
     color: #fff;
@@ -273,7 +484,7 @@ const cityGuide = Object.keys(cityTaglines)
     border-radius: 9px;
     cursor: pointer;
   }
-  .search button:hover {
+  .search button[type='submit']:hover {
     background: var(--accent-hover);
   }
   .hot-words {
@@ -516,21 +727,28 @@ const cityGuide = Object.keys(cityTaglines)
       flex-direction: column;
       padding: 10px;
     }
-    .search-scope {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
+    .search-field {
       flex: none;
       width: 100%;
       border-right: 0;
       border-bottom: 1px solid var(--surface-2);
-      padding: 4px 6px 12px;
     }
-    .search input {
+    .field-trigger {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 6px;
+    }
+    .dropdown-panel {
+      left: 0;
+      right: 0;
+      width: auto;
+    }
+    .search input[type='text'] {
       width: 100%;
       padding: 12px 6px;
     }
-    .search button {
+    .search button[type='submit'] {
       margin-top: 4px;
       padding: 12px;
       width: 100%;
