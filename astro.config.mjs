@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://foodie.pages.dev',
+  site: 'https://twfood.pages.dev',
   output: 'static',
 });
