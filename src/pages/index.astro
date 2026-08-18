@@ -127,11 +127,6 @@ const cityGuide = Object.keys(cityTaglines)
         <input type="text" name="q" placeholder="或輸入特定名稱：牛肉麵、滷肉飯…" />
         <button type="submit">搜尋</button>
       </form>
-      <div class="hot-words">
-        {homeCategories.slice(0, 5).map((c) => (
-          <a href={`/category/${c.id}`}>{c.name}</a>
-        ))}
-      </div>
     </div>
     <div class="hero-visual">
       <div class="hero-image" aria-hidden="true">
@@ -487,25 +482,6 @@ const cityGuide = Object.keys(cityTaglines)
   .search button[type='submit']:hover {
     background: var(--accent-hover);
   }
-  .hot-words {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 18px;
-  }
-  .hot-words a {
-    padding: 7px 14px;
-    background: var(--surface-0);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    font-size: 13px;
-    color: var(--text-secondary);
-  }
-  .hot-words a:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
   .hero-visual {
     position: relative;
   }
