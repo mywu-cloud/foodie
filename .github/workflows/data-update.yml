@@ -7,20 +7,23 @@ on:
   push:
     branches: [main]
 
-# 後台連續存檔會連續觸發部署；排隊依序執行，避免兩次部署互相覆蓋
-concurrency:
-  group: deploy-twfood
-  cancel-in-progress: false
+# 不設定 workflow 層級的 concurrency：先前用 cancel-in-progress: false 時，
+# 只要有一個 run 卡在 queued（GitHub 端偶發問題），後面所有 run 都會排在它後面永遠不會開始。
+
+# 快照步驟要 git push 回 main，需要寫入權限（新 repo 預設 GITHUB_TOKEN 只有讀取權限）
+permissions:
+  contents: write
 
 jobs:
   sync-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - run: npm ci
       # 資料同步 + 快照只在「每日排程 / 手動觸發」時跑。
