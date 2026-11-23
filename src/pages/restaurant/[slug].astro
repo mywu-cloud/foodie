@@ -16,6 +16,13 @@ const { data } = entry;
 const region = getRegion(data.regionId);
 const district = region?.districts.find((d) => d.id === data.districtId);
 const category = getCategory(data.categoryId);
+
+// 燈箱瀏覽用：封面照 + 美食照片（去重），點任一張即可左右滑動瀏覽全部
+const photos = [
+  ...(data.coverImage ? [{ src: data.coverImage, caption: undefined as string | undefined }] : []),
+  ...data.gallery,
+].filter((p, i, arr) => arr.findIndex((q) => q.src === p.src) === i);
+const photoIndex = (src: string) => photos.findIndex((p) => p.src === src);
 ---
 <BaseLayout title={data.name} description={data.description}>
   <article>
@@ -26,7 +33,10 @@ const category = getCategory(data.categoryId);
     <p class="meta">{region?.name}・{district?.name}・{category?.name}</p>
 
     {data.coverImage && (
-      <img class="cover" src={data.coverImage} alt={data.name} decoding="async" />
+      <a href={data.coverImage} class="cover-link" data-lb-index={photoIndex(data.coverImage)}>
+        <img class="cover" src={data.coverImage} alt={data.name} decoding="async" />
+        {photos.length > 1 && <span class="photo-count">共 {photos.length} 張照片</span>}
+      </a>
     )}
 
     <p class="description">{data.description}</p>
@@ -50,7 +60,7 @@ const category = getCategory(data.categoryId);
         <div class="gallery-grid">
           {data.gallery.map((p) => (
             <figure>
-              <a href={p.src} target="_blank" rel="noopener">
+              <a href={p.src} data-lb-index={photoIndex(p.src)}>
                 <img src={p.src} alt={p.caption ?? data.name} loading="lazy" decoding="async" />
               </a>
               {p.caption && <figcaption>{p.caption}</figcaption>}
@@ -60,9 +70,77 @@ const category = getCategory(data.categoryId);
       </section>
     )}
 
+    {photos.length > 0 && (
+      <dialog class="lightbox" aria-label={`${data.name} 照片`}>
+        <div class="lb-track">
+          {photos.map((p, i) => (
+            <figure class="lb-slide">
+              <img src={p.src} alt={p.caption ?? `${data.name} 照片 ${i + 1}`} loading="lazy" decoding="async" />
+              {p.caption && <figcaption>{p.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
+        <span class="lb-counter" aria-live="polite"></span>
+        <button type="button" class="lb-btn lb-close" aria-label="關閉">✕</button>
+        {photos.length > 1 && (
+          <>
+            <button type="button" class="lb-btn lb-prev" aria-label="上一張">‹</button>
+            <button type="button" class="lb-btn lb-next" aria-label="下一張">›</button>
+          </>
+        )}
+      </dialog>
+    )}
+
     <p class="reviewed">最後複核日期：{data.lastReviewedAt}</p>
   </article>
 </BaseLayout>
+
+<script>
+  // 照片燈箱：點封面或任一張美食照片開啟，左右滑動（手機）／方向鍵／左右按鈕切換，Esc 或 ✕ 關閉
+  const dialog = document.querySelector<HTMLDialogElement>('dialog.lightbox');
+  if (dialog) {
+    const track = dialog.querySelector<HTMLElement>('.lb-track')!;
+    const counter = dialog.querySelector<HTMLElement>('.lb-counter')!;
+    const total = track.children.length;
+    const current = () => Math.round(track.scrollLeft / track.clientWidth);
+    const go = (i: number, smooth = true) => {
+      const idx = Math.max(0, Math.min(total - 1, i));
+      track.scrollTo({ left: idx * track.clientWidth, behavior: smooth ? 'smooth' : 'instant' });
+    };
+    const update = () => {
+      const i = current();
+      counter.textContent = `${i + 1} / ${total}`;
+      dialog.querySelector<HTMLButtonElement>('.lb-prev')?.toggleAttribute('disabled', i === 0);
+      dialog.querySelector<HTMLButtonElement>('.lb-next')?.toggleAttribute('disabled', i === total - 1);
+    };
+
+    document.querySelectorAll<HTMLAnchorElement>('[data-lb-index]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        dialog.showModal();
+        document.body.style.overflow = 'hidden';
+        go(Number(a.dataset.lbIndex), false);
+        update();
+      });
+    });
+
+    track.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+    dialog.querySelector('.lb-prev')?.addEventListener('click', () => go(current() - 1));
+    dialog.querySelector('.lb-next')?.addEventListener('click', () => go(current() + 1));
+    dialog.querySelector('.lb-close')!.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => (document.body.style.overflow = ''));
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(current() + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(current() - 1); }
+    });
+    // 點照片以外的黑色背景也可關閉
+    track.addEventListener('click', (e) => {
+      if (!(e.target as HTMLElement).closest('img, figcaption')) dialog.close();
+    });
+    // 視窗大小改變（例如手機轉向）時對齊目前這張
+    window.addEventListener('resize', () => dialog.open && go(current(), false));
+  }
+</script>
 
 <style>
   article { max-width: 640px; }
@@ -79,5 +157,40 @@ const category = getCategory(data.categoryId);
   .gallery figure { margin: 0; }
   .gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; display: block; }
   .gallery figcaption { font-size: 12px; color: #888; margin-top: 4px; }
+  .cover-link { position: relative; display: block; cursor: zoom-in; }
+  .photo-count {
+    position: absolute; right: 12px; bottom: 12px; padding: 4px 10px; border-radius: 999px;
+    background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 12px;
+  }
+  .gallery a { cursor: zoom-in; display: block; }
+
+  .lightbox {
+    width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0;
+    border: 0; background: rgba(10, 8, 6, 0.96); color: #fff; overflow: hidden;
+  }
+  .lightbox::backdrop { background: rgba(10, 8, 6, 0.96); }
+  .lb-track {
+    display: flex; width: 100%; height: 100%; overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior: contain;
+  }
+  .lb-track::-webkit-scrollbar { display: none; }
+  .lb-slide {
+    flex: 0 0 100%; height: 100%; margin: 0; scroll-snap-align: center; scroll-snap-stop: always;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 56px 16px 32px;
+  }
+  .lb-slide img { max-width: 100%; max-height: calc(100% - 40px); object-fit: contain; border-radius: 6px; }
+  .lb-slide figcaption { font-size: 14px; color: #ddd; }
+  .lb-counter { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #ccc; }
+  .lb-btn {
+    position: absolute; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.14); color: #fff;
+    width: 44px; height: 44px; font-size: 26px; line-height: 1; cursor: pointer; display: grid; place-items: center;
+  }
+  .lb-btn:hover { background: rgba(255, 255, 255, 0.26); }
+  .lb-btn[disabled] { opacity: 0.25; cursor: default; }
+  .lb-close { top: 10px; right: 12px; font-size: 20px; }
+  .lb-prev { left: 16px; top: 50%; transform: translateY(-50%); }
+  .lb-next { right: 16px; top: 50%; transform: translateY(-50%); }
+  @media (hover: none) { .lb-prev, .lb-next { display: none; } } /* 觸控裝置用滑動即可 */
+
   .reviewed { color: #aaa; font-size: 12px; }
 </style>
