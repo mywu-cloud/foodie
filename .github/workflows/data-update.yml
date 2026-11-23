@@ -56,10 +56,10 @@ jobs:
           # /admin 的 GitHub OAuth 登入 Worker 網址，在 repo Settings → Variables 設定（沒設定時後台用 Token 登入）
           CMS_AUTH_URL: ${{ vars.CMS_AUTH_URL }}
 
+      # cloudflare/pages-action 已下架（2026-09 起 workflow 在 Set up job 就失敗），改用官方 wrangler-action
       - name: 部署到 Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: twfood
-          directory: dist
+          command: pages deploy dist --project-name=twfood --branch=main --commit-dirty=true
