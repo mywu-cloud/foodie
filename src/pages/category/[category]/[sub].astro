@@ -1,0 +1,19 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import CategoryListing from '../../../components/CategoryListing.astro';
+import { categories } from '../../../lib/taxonomy';
+
+// 細分類頁：/category/coffee/specialty-coffee
+export async function getStaticPaths() {
+  return categories.flatMap((c) =>
+    c.subcategories.map((s) => ({ params: { category: c.id, sub: s.id }, props: { category: c, sub: s } }))
+  );
+}
+
+const { category, sub } = Astro.props;
+const inCategory = (await getCollection('restaurants')).filter((r) => r.data.categoryId === category.id);
+---
+<BaseLayout title={`${category.name}・${sub.name}`} description={`台灣${sub.name}美食店家，依編輯分級排序`}>
+  <CategoryListing category={category} subId={sub.id} inCategory={inCategory} />
+</BaseLayout>
