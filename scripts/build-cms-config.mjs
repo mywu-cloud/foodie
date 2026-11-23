@@ -84,14 +84,11 @@ const restaurantFields = [
   },
   {
     name: 'gallery',
-    label: '美食照片',
-    widget: 'list',
+    label: '美食照片（可一次選取多張）',
+    widget: 'image',
+    multiple: true,
     required: false,
-    summary: '{{fields.caption}}',
-    fields: [
-      { name: 'src', label: '照片', widget: 'image' },
-      { name: 'caption', label: '說明（例如：招牌虱目魚肚粥）', widget: 'string', required: false },
-    ],
+    hint: '在檔案選擇視窗按住 Command（Windows 為 Ctrl）可一次選多張，或直接把多張照片拖進來。上傳時自動轉成 WebP 並縮到 1600px。',
   },
   { name: 'description', label: '店家介紹（前台顯示）', widget: 'text' },
   { name: 'address', label: '地址', widget: 'string' },

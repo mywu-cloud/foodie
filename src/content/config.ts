@@ -29,7 +29,15 @@ const restaurants = defineCollection({
     tags: z.preprocess((v) => (v == null ? [] : v), z.array(z.string())).default([]), // 例如「素食友善」「可訂位」
     description: z.string(),
     coverImage: optional(z.string()),    // 封面照（列表卡片、詳情頁主圖）
-    gallery: z.preprocess((v) => (v == null ? [] : v), z.array(photo)).default([]), // 美食照片相簿
+    // 美食照片相簿。後台一次上傳多張時存成字串陣列 ["/images/..", ..]；
+    // 舊格式 / CSV 匯入是 [{ src, caption }]；單張時可能存成字串。三種都接受，統一轉成 { src, caption }。
+    gallery: z
+      .preprocess((v) => {
+        if (v == null || v === '') return [];
+        const list = Array.isArray(v) ? v : [v];
+        return list.filter(Boolean).map((p) => (typeof p === 'string' ? { src: p } : p));
+      }, z.array(photo))
+      .default([]),
     lat: optional(z.number()),
     lng: optional(z.number()),
     editorNote: optional(z.string()),   // 編輯給分級的理由，供內部追蹤（不顯示在前台）
