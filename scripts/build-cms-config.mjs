@@ -262,3 +262,92 @@ await writeFile(
     '\n'
 );
 console.log(`CMS config written: ${OUT}（${regions.length} 縣市、${districtOptions.length} 鄉鎮區、${categories.length} 分類）`);
+
+// ---------------------------------------------------------------------------
+// /contribute：一般使用者投稿入口（Decap CMS + Open Authoring）
+//
+// Sveltia CMS 不支援 editorial workflow / open authoring，所以投稿入口改用 Decap CMS：
+// 使用者用自己的 GitHub 帳號登入 → 修改存到他自己 fork 的分支 → 自動開 PR 到本 repo →
+// admin 在 GitHub 審查後合併才上線。投稿者沒有 repo 寫入權限，所以不可能直接刪除或改到 main。
+//
+// 差異（相對 /admin）：
+//   - 只開放「餐廳」，不開放分類設定；不能刪除
+//   - 分級欄位是「建議分級」，最終由 admin 審查時決定
+//   - editorNote（內部分級理由）隱藏，保留原值
+//   - Decap 沒有上傳時壓縮照片；改由 scripts/optimize-images.mjs 在部署時壓縮 dist 內的照片
+//   - Open Authoring 必須用 GitHub OAuth 登入，沒設定 CMS_AUTH_URL 時頁面會顯示「尚未開放」
+// ---------------------------------------------------------------------------
+const CONTRIB_OUT = 'public/contribute/config.yml';
+
+const contributeFields = restaurantFields.map((f) => {
+  switch (f.name) {
+    case 'tierId':
+      return {
+        ...f,
+        label: '建議分級（僅供參考，由編輯審查後決定）',
+        hint: '依你的實際體驗建議；最終分級由台灣美食通編輯評定。',
+      };
+    case 'editorNote':
+      return { name: 'editorNote', label: '編輯備註', widget: 'hidden', required: false };
+    case 'coverImage':
+      return {
+        ...f,
+        hint: '請只上傳自己拍攝的照片（不要從 Google 地圖、部落格或社群下載）。手機原圖即可，網站會自動壓縮。',
+      };
+    case 'lastReviewedAt':
+      return { ...f, label: '造訪日期', hint: '你最近一次造訪這家店的日期' };
+    default:
+      return f;
+  }
+});
+
+const contributeConfig = {
+  backend: {
+    name: 'github',
+    repo: 'mywu-cloud/foodie',
+    branch: 'main',
+    open_authoring: true,
+    ...(process.env.CMS_AUTH_URL ? { base_url: process.env.CMS_AUTH_URL } : {}),
+    commit_messages: {
+      create: 'content(投稿): 新增「{{slug}}」',
+      update: 'content(投稿): 更新「{{slug}}」',
+      delete: 'content(投稿): 刪除「{{slug}}」',
+      uploadMedia: 'media(投稿): 上傳 {{path}}',
+      deleteMedia: 'media(投稿): 刪除 {{path}}',
+      openAuthoring: '{{message}}（投稿者：{{author-login}}）',
+    },
+  },
+  publish_mode: 'editorial_workflow',
+  site_url: 'https://twfood.pages.dev',
+  display_url: 'https://twfood.pages.dev',
+  locale: 'zh_Hant',
+  media_folder: 'public/images/restaurants',
+  public_folder: '/images/restaurants',
+  collections: [
+    {
+      name: 'restaurants',
+      label: '餐廳',
+      label_singular: '餐廳',
+      folder: 'src/content/restaurants',
+      extension: 'json',
+      format: 'json',
+      create: true,
+      delete: false,
+      identifier_field: 'name',
+      slug: '{{fields.urlId}}',
+      summary: '{{name}}',
+      sortable_fields: ['name'],
+      preview_path: '/restaurant/{{slug}}',
+      fields: contributeFields,
+    },
+  ],
+};
+
+await mkdir('public/contribute', { recursive: true });
+await writeFile(
+  CONTRIB_OUT,
+  `# 自動產生的檔案，請勿手動修改 —— 來源：scripts/build-cms-config.mjs\n` +
+    JSON.stringify(contributeConfig, null, 2) +
+    '\n'
+);
+console.log(`CMS config written: ${CONTRIB_OUT}（投稿入口，${process.env.CMS_AUTH_URL ? '已設定 OAuth' : '尚未設定 OAuth → 頁面顯示尚未開放'}）`);

@@ -79,6 +79,8 @@ scripts/fetch-data.mjs      GitHub Actions 排程執行的資料同步腳本
 scripts/build-cms-config.mjs  taxonomy → 後台下拉選單
 scripts/validate-content.mjs  跨檔案驗證（id 對應、照片存在），build 前執行，失敗即不部署
 scripts/import-csv.mjs      CSV 批次匯入（全部通過才寫檔；既有檔預設跳過）
+scripts/optimize-images.mjs  build 最後壓縮 dist/images 照片（1600px）
+public/contribute/          使用者投稿入口（Decap CMS Open Authoring），config.yml 同樣由產生器產生
 .github/workflows/          排程同步 + 部署
 ```
 
@@ -88,7 +90,15 @@ scripts/import-csv.mjs      CSV 批次匯入（全部通過才寫檔；既有檔
 - 分級複核週期：`lastReviewedAt` 多久沒更新要視為過舊、需要重新複核
 ## 編輯後台（已決定）
 
-採用 Git-based CMS（Sveltia CMS，`/admin`），不自建資料庫後台：存檔 = commit JSON 與照片到 main → Actions 部署。理由：維持「JSON + 靜態 build」的資料層不變、零伺服器成本、權限交給 GitHub repo 寫入權限。批次建檔用 `scripts/import-csv.mjs`。操作說明見 `docs/ADMIN.md`。
+兩個入口，皆為 Git-based CMS，不自建資料庫後台：
+
+- `/admin`：Sveltia CMS，給 admin（repo 寫入權限）直接編輯、刪除、改分類設定
+- `/contribute`：Decap CMS + Open Authoring + editorial workflow，給一般使用者（GitHub 帳號）投稿。修改存在投稿者的 fork，自動開 PR，admin 審查合併才上線；投稿者不能刪除。投稿表單的 `tierId` 是「建議分級」，最終由 admin 決定；`editorNote` 隱藏
+- 為什麼投稿用 Decap：Sveltia 不支援 editorial workflow / open authoring
+- Decap 不壓縮上傳照片 → `scripts/optimize-images.mjs` 在 build 最後壓縮 `dist/images`（不改 repo 原檔）
+- `.github/workflows/pr-check.yml` 在 PR 上跑 build（含資料驗證），不部署、不用 secrets
+
+原始決策：採用 Git-based CMS（Sveltia CMS，`/admin`），不自建資料庫後台：存檔 = commit JSON 與照片到 main → Actions 部署。理由：維持「JSON + 靜態 build」的資料層不變、零伺服器成本、權限交給 GitHub repo 寫入權限。批次建檔用 `scripts/import-csv.mjs`。操作說明見 `docs/ADMIN.md`。
 
 - 新增 taxonomy 欄位或餐廳欄位時，要同步更新 `src/content/config.ts`、`scripts/build-cms-config.mjs`、`scripts/import-csv.mjs`
 - 選填欄位在 schema 用 `optional()` helper（把 `""`／`null` 視為未填），因為 CMS 可能存出空值

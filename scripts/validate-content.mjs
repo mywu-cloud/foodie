@@ -8,7 +8,7 @@
  *   - urlId 是否跟檔名一致
  * 有任何錯誤就以 exit code 1 結束 → build 失敗 → 網站維持上一版，不會上線壞資料。
  */
-import { readFile, readdir, access } from 'node:fs/promises';
+import { readFile, readdir, access, stat } from 'node:fs/promises';
 
 const TAXONOMY = 'src/content/taxonomy';
 const RESTAURANTS = 'src/content/restaurants';
@@ -89,7 +89,15 @@ for (const file of files) {
       errors.push(`${where} 照片路徑要以 / 開頭，例如 /images/restaurants/xxx.webp：${src}`);
       continue;
     }
-    if (!(await exists(`public${decodeURI(src)}`))) errors.push(`${where} 照片檔不存在：public${src}`);
+    const file = `public${decodeURI(src)}`;
+    if (!(await exists(file))) {
+      errors.push(`${where} 照片檔不存在：${file}`);
+      continue;
+    }
+    // 部署時 scripts/optimize-images.mjs 會壓縮，但 repo 內單檔太大會拖慢 clone 與部署
+    const { size } = await stat(file);
+    if (size > 20 * 1024 * 1024) errors.push(`${where} 照片超過 20 MB，請先壓縮：${file}`);
+    else if (size > 8 * 1024 * 1024) warnings.push(`${where} 照片 ${(size / 1024 / 1024).toFixed(1)} MB，偏大：${file}`);
   }
 }
 

@@ -61,6 +61,11 @@ const category = getCategory(data.categoryId);
     )}
 
     <p class="reviewed">最後複核日期：{data.lastReviewedAt}</p>
+    <p class="suggest">
+      資料有誤或想補充照片？
+      <a href={`/contribute/#/collections/restaurants/entries/${slug}`}>建議修改這家店</a>
+      ・<a href="/how-to-contribute/">投稿說明</a>
+    </p>
   </article>
 </BaseLayout>
 
@@ -79,5 +84,6 @@ const category = getCategory(data.categoryId);
   .gallery figure { margin: 0; }
   .gallery img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; display: block; }
   .gallery figcaption { font-size: 12px; color: #888; margin-top: 4px; }
+  .suggest { font-size: 13px; color: #888; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border, #eee); }
   .reviewed { color: #aaa; font-size: 12px; }
 </style>

@@ -1,0 +1,27 @@
+name: 投稿 / PR 檢查
+
+# 使用者從 /contribute 投稿會自動從他的 fork 開 PR。
+# 這個 workflow 在 PR 上跑資料驗證與 build，審查者在 PR 頁面就能看到投稿資料是否正確
+#（縣市／鄉鎮區對應、分類、照片存在與大小）。不部署、不需要任何 secrets。
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm ci
+
+      # build 內含：產生後台設定 → 資料交叉驗證（失敗即紅燈）→ astro build → 照片壓縮
+      - run: npm run build

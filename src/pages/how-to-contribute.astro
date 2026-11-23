@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="推薦店家・投稿說明" description="用 GitHub 帳號登入，推薦你喜歡的店家，或幫忙更新店家資訊與照片。">
+  <article class="guide">
+    <h1>推薦店家・幫忙更新資料</h1>
+    <p class="lead">
+      台灣美食通的店家資料由編輯人工建檔。歡迎你推薦心中的好店，或幫忙更新營業時間、地址與照片。
+      所有投稿都會先經過編輯審查，通過後才會出現在網站上。
+    </p>
+
+    <a class="cta" href="/contribute/">開始投稿 →</a>
+
+    <h2>投稿步驟</h2>
+    <ol>
+      <li>
+        <strong>準備 GitHub 帳號</strong>：投稿系統使用 GitHub 登入。還沒有帳號的話，到
+        <a href="https://github.com/signup" target="_blank" rel="noopener">github.com/signup</a> 免費註冊即可。
+      </li>
+      <li><strong>登入投稿頁</strong>：按上方「開始投稿」，選擇用 GitHub 登入，第一次會詢問授權。</li>
+      <li>
+        <strong>新增或修改店家</strong>：按「新增餐廳」填寫新店家；要修改既有店家，在列表點選該店即可。
+        也可以在店家頁面最下方按「建議修改這家店」。
+      </li>
+      <li>
+        <strong>儲存並送審</strong>：填好後按「儲存」，再把狀態從「草稿」改為<strong>送審</strong>（英文介面為 Ready to Review）。
+        之後在「工作流程」（Workflow）頁面可以看到你送出的投稿。
+      </li>
+      <li><strong>等待審查</strong>：編輯確認後就會上線，通常需要幾天。</li>
+    </ol>
+
+    <h2>填寫說明</h2>
+    <ul>
+      <li><strong>網址代號</strong>：英文小寫與「-」，例如店名「阿明鹹粥」可以填 <code>ah-ming-congee</code>。</li>
+      <li><strong>縣市與鄉鎮區</strong>：鄉鎮區要選跟縣市相符的；清單裡沒有的區，請在「店家介紹」最後註明，編輯會幫忙新增。</li>
+      <li><strong>建議分級</strong>：依你的實際體驗建議即可，最終分級由編輯評定。</li>
+      <li><strong>造訪日期</strong>：你最近一次去吃的日期。</li>
+    </ul>
+
+    <h2>照片規則</h2>
+    <ul>
+      <li>只上傳<strong>自己拍攝</strong>的照片，請勿從 Google 地圖、部落格、社群或店家官網下載他人的照片。</li>
+      <li>手機原圖直接上傳即可，網站會自動壓縮。</li>
+      <li>避免拍到其他客人的臉。</li>
+    </ul>
+
+    <h2>常見問題</h2>
+    <dl>
+      <dt>為什麼要用 GitHub 登入？</dt>
+      <dd>
+        台灣美食通的資料存放在公開的 GitHub repo。你的投稿會變成一個修改提案（Pull Request），由編輯審查後合併，
+        所以不會直接改動網站，也能清楚保留每筆資料的修改紀錄。
+      </dd>
+      <dt>可以刪除店家嗎？</dt>
+      <dd>投稿者不能刪除店家。如果店家已歇業，請修改該店並在「店家介紹」註明，編輯確認後會處理。</dd>
+      <dt>我的投稿沒有通過？</dt>
+      <dd>編輯會在投稿（Pull Request）頁面留言說明原因，你可以修改後再送一次。</dd>
+    </dl>
+  </article>
+</BaseLayout>
+
+<style>
+  .guide { max-width: 720px; margin: 0 auto; padding: 40px 24px 64px; line-height: 1.8; }
+  .guide h1 { font-size: 30px; margin: 0 0 12px; }
+  .guide h2 { font-size: 20px; margin: 36px 0 8px; }
+  .lead { color: var(--text-secondary); font-size: 16px; }
+  .cta {
+    display: inline-block; margin: 12px 0 8px; padding: 12px 22px; border-radius: 12px;
+    background: var(--accent); color: #fff; font-weight: 700;
+  }
+  .cta:hover { background: var(--accent-hover); color: #fff; }
+  ol, ul { padding-left: 1.3em; }
+  li { margin: 6px 0; }
+  dt { font-weight: 700; margin-top: 14px; }
+  dd { margin: 4px 0 0; color: var(--text-secondary); }
+  code { background: var(--surface-2); padding: 1px 6px; border-radius: 6px; font-size: 0.92em; }
+</style>

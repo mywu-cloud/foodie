@@ -1,11 +1,12 @@
 # 編輯後台與資料匯入
 
-台灣美食通有兩種輸入資料的方式，最後都是把 JSON 和照片 commit 進這個 repo，由 GitHub Actions 自動 build 並部署到 Cloudflare Pages（約 1–2 分鐘後上線）。
+台灣美食通有三種輸入資料的方式，最後都是把 JSON 和照片 commit 進這個 repo，由 GitHub Actions 自動 build 並部署到 Cloudflare Pages（約 1–2 分鐘後上線）。
 
-| 方式 | 適合 | 入口 |
-|---|---|---|
-| **/admin 後台** | 日常新增或修改單筆資料、上傳美食照片、新增鄉鎮區與分類 | https://twfood.pages.dev/admin/ |
-| **CSV 批次匯入** | 第一次大量建檔、從試算表整批匯入 | `npm run import -- 檔案.csv` |
+| 方式 | 誰用 | 權限 | 入口 |
+|---|---|---|---|
+| **/admin 後台**（Sveltia CMS） | admin（repo 有寫入權限的人） | 新增、修改、**刪除**、分類設定，存檔直接上線 | https://twfood.pages.dev/admin/ |
+| **/contribute 投稿**（Decap CMS） | 任何有 GitHub 帳號的使用者 | 只能新增、修改；存檔變成 PR，**admin 審查合併才上線** | https://twfood.pages.dev/contribute/ |
+| **CSV 批次匯入** | admin | 同 /admin | `npm run import -- 檔案.csv` |
 
 部署前會先跑 `npm run validate` 做交叉檢查（縣市與鄉鎮區是否對得上、照片檔是否存在、分級是否有效）。檢查沒過就不會部署，網站維持上一版。
 
@@ -60,7 +61,41 @@ Token 只存在你的瀏覽器裡。建議設定到期日，到期後重新產�
 
 ---
 
-## 二、CSV 批次匯入
+## 二、/contribute 使用者投稿（Decap CMS Open Authoring）
+
+### 運作方式
+
+1. 使用者在 `/contribute` 用自己的 GitHub 帳號登入（第一次會自動 fork 這個 repo）
+2. 新增或修改店家 → 修改存到**他自己 fork 的分支**，不會動到本 repo
+3. 使用者把狀態改成送審（Ready to Review）→ 自動對本 repo 開一個 **Pull Request**
+4. admin 在 GitHub 審查 PR → 合併才會部署上線；不合格就留言並關閉 PR
+
+投稿者沒有 repo 寫入權限，所以**不可能直接改到 main，也不能刪除店家**。刪除只能由 admin 在 `/admin` 做。
+
+### 啟用條件
+
+- repo 必須是公開的（foodie 目前是公開 repo）
+- **必須先完成上面「登入方式 B」的 OAuth 設定**（`CMS_AUTH_URL`）。Open Authoring 不支援 Token 登入；沒設定時 `/contribute` 會顯示「投稿功能即將開放」
+- sveltia-cms-auth 這個 OAuth Worker 也相容 Decap CMS，`/admin` 和 `/contribute` 共用同一個
+
+### 審查投稿（admin）
+
+1. 到 repo 的 **Pull requests**，投稿 PR 的標題會標示來源 fork 與投稿者
+2. **第一次投稿的使用者**，GitHub 會要求你按「Approve and run」，PR 檢查（`投稿 / PR 檢查` workflow）才會執行
+3. PR 檢查是綠燈 → 代表縣市／鄉鎮區／分類對得上、照片存在。紅燈就點進去看錯誤訊息
+4. 在 **Files changed** 檢查內容：
+   - **建議分級**（`tierId`）只是投稿者的建議。你可以合併後在 `/admin` 改成你評定的分級，並補上分級理由（`editorNote`）
+   - 照片是否為投稿者自己拍攝（避免從 Google 地圖、部落格下載的照片）
+   - 修改既有店家時，確認沒有誤刪其他欄位
+5. 沒問題 → **Merge**（建議 Squash and merge）→ 自動部署；有問題 → 留言說明後 **Close**
+
+### 照片
+
+Decap 上傳時不會壓縮照片。部署時 `scripts/optimize-images.mjs` 會把網站上的照片縮到最長邊 1600px 並重新壓縮（repo 裡的原檔不變）。單張超過 20 MB 會被 PR 檢查擋下。
+
+---
+
+## 三、CSV 批次匯入
 
 1. 用 Excel 或 Google 試算表打開 `data-import/restaurants-template.csv`，一列填一家店，填完**刪除範例列**
 2. 另存為 CSV（Excel 選「CSV UTF-8」最保險；Big5 也能讀）

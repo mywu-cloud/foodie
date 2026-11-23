@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>台灣美食通｜投稿店家</title>
+    <style>
+      #not-ready {
+        display: none;
+        max-width: 520px;
+        margin: 15vh auto;
+        padding: 32px;
+        font-family: 'Noto Sans TC', system-ui, sans-serif;
+        color: #241c16;
+        background: #fff;
+        border: 1px solid #e8dfd1;
+        border-radius: 16px;
+        line-height: 1.7;
+      }
+      #not-ready h1 { font-size: 20px; margin: 0 0 8px; }
+      #not-ready a { color: #c0402d; }
+    </style>
+  </head>
+  <body>
+    <!--
+      一般使用者投稿入口：Decap CMS + Open Authoring（投稿 → 自動開 PR → admin 審查合併才上線）
+      設定檔 config.yml 由 scripts/build-cms-config.mjs 產生；使用說明見 /how-to-contribute/ 與 docs/ADMIN.md
+    -->
+    <div id="not-ready">
+      <h1>投稿功能即將開放</h1>
+      <p>我們正在準備投稿系統，開放後你就能用 GitHub 帳號登入，推薦店家或補充店家資訊。</p>
+      <p><a href="/">← 回台灣美食通首頁</a></p>
+    </div>
+    <script>
+      // Open Authoring 必須透過 OAuth 登入；尚未設定 base_url 時不載入 CMS，改顯示「即將開放」
+      fetch('config.yml', { cache: 'no-store' })
+        .then((r) => r.text())
+        .then((text) => {
+          if (!/"base_url"\s*:/.test(text)) {
+            document.getElementById('not-ready').style.display = 'block';
+            return;
+          }
+          const s = document.createElement('script');
+          s.src = 'https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js';
+          document.body.appendChild(s);
+        })
+        .catch(() => {
+          document.getElementById('not-ready').style.display = 'block';
+        });
+    </script>
+  </body>
+</html>
