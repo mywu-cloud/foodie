@@ -6,10 +6,22 @@
       "name": "台北",
       "popular": true,
       "districts": [
-        { "id": "daan", "name": "大安區" },
-        { "id": "xinyi", "name": "信義區" },
-        { "id": "zhongshan", "name": "中山區" },
-        { "id": "wanhua", "name": "萬華區" }
+        {
+          "id": "daan",
+          "name": "大安區"
+        },
+        {
+          "id": "xinyi",
+          "name": "信義區"
+        },
+        {
+          "id": "zhongshan",
+          "name": "中山區"
+        },
+        {
+          "id": "wanhua",
+          "name": "萬華區"
+        }
       ]
     },
     {
@@ -17,8 +29,14 @@
       "name": "新竹",
       "popular": true,
       "districts": [
-        { "id": "hsinchu-east", "name": "東區" },
-        { "id": "hsinchu-north", "name": "北區" }
+        {
+          "id": "hsinchu-east",
+          "name": "東區"
+        },
+        {
+          "id": "hsinchu-north",
+          "name": "北區"
+        }
       ]
     },
     {
@@ -26,9 +44,18 @@
       "name": "台中",
       "popular": true,
       "districts": [
-        { "id": "taichung-west", "name": "西區" },
-        { "id": "beitun", "name": "北屯區" },
-        { "id": "xitun", "name": "西屯區" }
+        {
+          "id": "taichung-west",
+          "name": "西區"
+        },
+        {
+          "id": "beitun",
+          "name": "北屯區"
+        },
+        {
+          "id": "xitun",
+          "name": "西屯區"
+        }
       ]
     },
     {
@@ -36,8 +63,22 @@
       "name": "嘉義",
       "popular": true,
       "districts": [
-        { "id": "chiayi-east", "name": "東區" },
-        { "id": "chiayi-west", "name": "西區" }
+        {
+          "id": "chiayi-east",
+          "name": "東區"
+        },
+        {
+          "id": "chiayi-west",
+          "name": "西區"
+        },
+        {
+          "id": "chiayi-minxiong",
+          "name": "民雄鄉"
+        },
+        {
+          "id": "chiayi-zhuqi",
+          "name": "竹崎鄉"
+        }
       ]
     },
     {
@@ -45,8 +86,66 @@
       "name": "台南",
       "popular": true,
       "districts": [
-        { "id": "zhongxi", "name": "中西區" },
-        { "id": "anping", "name": "安平區" }
+        {
+          "id": "zhongxi",
+          "name": "中西區"
+        },
+        {
+          "id": "anping",
+          "name": "安平區"
+        },
+        {
+          "id": "tainan-rende",
+          "name": "仁德區"
+        },
+        {
+          "id": "tainan-yongkang",
+          "name": "永康區"
+        },
+        {
+          "id": "tainan-dongqu",
+          "name": "東區"
+        },
+        {
+          "id": "tainan-beimen",
+          "name": "北門區"
+        },
+        {
+          "id": "tainan-shanhua",
+          "name": "善化區"
+        },
+        {
+          "id": "tainan-xinshi",
+          "name": "新市區"
+        },
+        {
+          "id": "tainan-anding",
+          "name": "安定區"
+        },
+        {
+          "id": "tainan-qigu",
+          "name": "七股區"
+        },
+        {
+          "id": "tainan-jiali",
+          "name": "佳里區"
+        },
+        {
+          "id": "tainan-xinhua",
+          "name": "新化區"
+        },
+        {
+          "id": "tainan-xinying",
+          "name": "新營區"
+        },
+        {
+          "id": "tainan-liuying",
+          "name": "柳營區"
+        },
+        {
+          "id": "tainan-beiqu",
+          "name": "北區"
+        }
       ]
     },
     {
@@ -54,10 +153,54 @@
       "name": "高雄",
       "popular": true,
       "districts": [
-        { "id": "yancheng", "name": "鹽埕區" },
-        { "id": "qianzhen", "name": "前鎮區" },
-        { "id": "lingya", "name": "苓雅區" },
-        { "id": "zuoying", "name": "左營區" }
+        {
+          "id": "yancheng",
+          "name": "鹽埕區"
+        },
+        {
+          "id": "qianzhen",
+          "name": "前鎮區"
+        },
+        {
+          "id": "lingya",
+          "name": "苓雅區"
+        },
+        {
+          "id": "zuoying",
+          "name": "左營區"
+        },
+        {
+          "id": "kaohsiung-xinxing",
+          "name": "新興區"
+        },
+        {
+          "id": "kaohsiung-sanmin",
+          "name": "三民區"
+        },
+        {
+          "id": "kaohsiung-renwu",
+          "name": "仁武區"
+        },
+        {
+          "id": "kaohsiung-qiaotou",
+          "name": "橋頭區"
+        },
+        {
+          "id": "kaohsiung-gangshan",
+          "name": "岡山區"
+        },
+        {
+          "id": "kaohsiung-gushan",
+          "name": "鼓山區"
+        },
+        {
+          "id": "kaohsiung-qianjin",
+          "name": "前金區"
+        },
+        {
+          "id": "kaohsiung-fengshan",
+          "name": "鳳山區"
+        }
       ]
     },
     {
@@ -65,7 +208,10 @@
       "name": "台東",
       "popular": true,
       "districts": [
-        { "id": "taitung-city", "name": "台東市" }
+        {
+          "id": "taitung-city",
+          "name": "台東市"
+        }
       ]
     },
     {
@@ -73,7 +219,10 @@
       "name": "花蓮",
       "popular": true,
       "districts": [
-        { "id": "hualien-city", "name": "花蓮市" }
+        {
+          "id": "hualien-city",
+          "name": "花蓮市"
+        }
       ]
     },
     {
@@ -81,8 +230,48 @@
       "name": "新北",
       "popular": false,
       "districts": [
-        { "id": "banqiao", "name": "板橋區" },
-        { "id": "sanchong", "name": "三重區" }
+        {
+          "id": "banqiao",
+          "name": "板橋區"
+        },
+        {
+          "id": "sanchong",
+          "name": "三重區"
+        }
+      ]
+    },
+    {
+      "id": "pingtung",
+      "name": "屏東",
+      "popular": false,
+      "districts": [
+        {
+          "id": "pingtung-pingdong",
+          "name": "屏東市"
+        },
+        {
+          "id": "pingtung-hengchun",
+          "name": "恆春鎮"
+        },
+        {
+          "id": "pingtung-wandan",
+          "name": "萬丹"
+        }
+      ]
+    },
+    {
+      "id": "nantou",
+      "name": "南投",
+      "popular": false,
+      "districts": [
+        {
+          "id": "nantou-yuchi",
+          "name": "魚池鄉"
+        },
+        {
+          "id": "nantou-shuili",
+          "name": "水里鄉"
+        }
       ]
     }
   ]

@@ -1,0 +1,99 @@
+name: 試算表匯入
+
+# 自助匯入：把 Numbers（.numbers）或 CSV 檔上傳到 data-import/inbox/，就會自動：
+#   1. 讀取所有工作表 → 轉成店家 JSON（scripts/import_spreadsheet.py），缺的縣市／鄉鎮區自動新增
+#   2. 跑資料驗證（scripts/validate-content.mjs）
+#   3. 成功：commit 店家資料，檔案移到 data-import/done/，並觸發部署
+#      失敗：不匯入任何店家，檔案移到 data-import/failed/，錯誤寫在報告裡（本次執行的 Summary 也看得到）
+# 報告存在 data-import/reports/<時間>.md，檔名帶時間戳，不會覆蓋舊報告。
+on:
+  push:
+    branches: [main]
+    paths: ['data-import/inbox/**']
+  workflow_dispatch: {}
+
+permissions:
+  contents: write # commit 匯入結果
+  actions: write  # 觸發部署 workflow
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: pip install numbers-parser pypinyin
+
+      - name: 匯入
+        id: run
+        shell: bash
+        run: |
+          shopt -s nullglob nocaseglob
+          files=(data-import/inbox/*.numbers data-import/inbox/*.csv)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "data-import/inbox/ 裡沒有 .numbers 或 .csv 檔，不需匯入" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "result=skip" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          ts=$(TZ=Asia/Taipei date +%Y%m%d-%H%M%S)
+          report="data-import/reports/$ts.md"
+          mkdir -p data-import/reports
+
+          set +e
+          python scripts/import_spreadsheet.py "${files[@]}" --report "$report"
+          code=$?
+          if [ $code -eq 0 ]; then
+            node scripts/validate-content.mjs > /tmp/validate.log 2>&1
+            vcode=$?
+            if [ $vcode -ne 0 ]; then
+              code=$vcode
+              { echo; echo "## ❌ 資料驗證失敗（整批未匯入）"; echo '```'; cat /tmp/validate.log; echo '```'; } >> "$report"
+              # 還原這次匯入產生的變更
+              git checkout -- src/content
+              git clean -fdq src/content
+            fi
+          fi
+          set -e
+
+          cat "$report" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ $code -eq 0 ]; then dest=data-import/done; result=success; else dest=data-import/failed; result=failed; fi
+          mkdir -p "$dest"
+          for f in "${files[@]}"; do git mv "$f" "$dest/$ts-$(basename "$f")"; done
+
+          git config user.name "food-site-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A src/content data-import
+          if [ "$result" = success ]; then
+            git commit -q -m "content: 試算表匯入 $ts（報告：$report）"
+          else
+            git commit -q -m "chore: 試算表匯入失敗 $ts（報告：$report）"
+          fi
+          for i in 1 2 3; do
+            git pull -q --rebase origin main && git push -q && break
+            sleep $((i * 5))
+          done
+          echo "result=$result" >> "$GITHUB_OUTPUT"
+
+      # GITHUB_TOKEN 推送的 commit 不會觸發其他 workflow，所以這裡主動觸發部署
+      - name: 觸發部署
+        if: steps.run.outputs.result == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run data-update.yml --ref main
+
+      - name: 匯入失敗
+        if: steps.run.outputs.result == 'failed'
+        run: |
+          echo "::error::匯入失敗，沒有匯入任何店家。請看本次執行的 Summary 或 data-import/reports/ 裡的報告，修正後重新上傳。"
+          exit 1

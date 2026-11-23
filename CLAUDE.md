@@ -79,6 +79,8 @@ scripts/fetch-data.mjs      GitHub Actions 排程執行的資料同步腳本
 scripts/build-cms-config.mjs  taxonomy → 後台下拉選單
 scripts/validate-content.mjs  跨檔案驗證（id 對應、照片存在），build 前執行，失敗即不部署
 scripts/import-csv.mjs      CSV 批次匯入（全部通過才寫檔；既有檔預設跳過）
+scripts/import_spreadsheet.py  Numbers／CSV 匯入（Python；自動新增鄉鎮區、依 data-import/category-rules.json 判斷分類；同縣市同店名跳過；tierId 一律 unrated）
+data-import/inbox/          自助上傳區：上傳後 .github/workflows/import-spreadsheet.yml 自動匯入、驗證、觸發部署
 .github/workflows/          排程同步 + 部署
 ```
 

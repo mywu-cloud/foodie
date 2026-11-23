@@ -1,0 +1,16 @@
+{
+  "urlId": "punt-coffee-roastery",
+  "name": "PUNT COFFEE ROASTERY",
+  "regionId": "kaohsiung",
+  "districtId": "kaohsiung-xinxing",
+  "categoryId": "coffee",
+  "subcategoryId": "specialty-coffee",
+  "tierId": "unrated",
+  "address": "高雄市新興區大同一路61號",
+  "openingHours": "08:00–16:00",
+  "tags": [
+    "Coffee"
+  ],
+  "description": "Coffee",
+  "lastReviewedAt": "2026-11-23"
+}

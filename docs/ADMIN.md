@@ -5,7 +5,8 @@
 | 方式 | 適合 | 入口 |
 |---|---|---|
 | **/admin 後台** | 日常新增或修改單筆資料、上傳美食照片、新增鄉鎮區與分類 | https://twfood.pages.dev/admin/ |
-| **CSV 批次匯入** | 第一次大量建檔、從試算表整批匯入 | `npm run import -- 檔案.csv` |
+| **試算表自動匯入** | 用 Numbers 整理好的店家清單，整批上傳 | 把 `.numbers` / `.csv` 上傳到 GitHub 的 `data-import/inbox/`（說明見該資料夾的 README） |
+| **CSV 批次匯入（本機）** | 需要在電腦上裝 Node.js | `npm run import -- 檔案.csv` |
 
 部署前會先跑 `npm run validate` 做交叉檢查（縣市與鄉鎮區是否對得上、照片檔是否存在、分級是否有效）。檢查沒過就不會部署，網站維持上一版。
 
@@ -60,7 +61,16 @@ Token 只存在你的瀏覽器裡。建議設定到期日，到期後重新產�
 
 ---
 
-## 二、CSV 批次匯入
+## 二、試算表自動匯入（不用安裝任何軟體）
+
+1. GitHub → foodie repo → 打開 `data-import/inbox` 資料夾 → **Add file → Upload files**
+2. 拖入 `.numbers`（或 `.csv`）→ **Commit changes**
+3. Actions 分頁的「試算表匯入」會自動執行：轉換 → 驗證 → 成功就匯入並部署；失敗就整批不匯入，錯誤寫在該次執行的 Summary
+4. 處理過的檔案移到 `data-import/done/` 或 `failed/`，報告在 `data-import/reports/`
+
+欄位格式、自動分類規則見 `data-import/inbox/README.md`。注意：repo 是公開的，上傳的檔案與報告任何人都看得到。
+
+## 三、CSV 批次匯入（本機）
 
 1. 用 Excel 或 Google 試算表打開 `data-import/restaurants-template.csv`，一列填一家店，填完**刪除範例列**
 2. 另存為 CSV（Excel 選「CSV UTF-8」最保險；Big5 也能讀）
