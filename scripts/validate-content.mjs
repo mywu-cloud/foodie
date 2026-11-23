@@ -79,7 +79,8 @@ for (const file of files) {
     errors.push(`${where} lastReviewedAt「${r.lastReviewedAt}」不是有效日期`);
   }
 
-  const photos = [r.coverImage, ...(r.gallery ?? []).map((g) => g?.src)].filter(Boolean);
+  const gallery = r.gallery == null ? [] : Array.isArray(r.gallery) ? r.gallery : [r.gallery];
+  const photos = [r.coverImage, ...gallery.map((g) => (typeof g === 'string' ? g : g?.src))].filter(Boolean);
   for (const src of photos) {
     if (/^https?:\/\//.test(src)) {
       warnings.push(`${where} 照片使用外部網址 ${src}（請確認有授權，建議改為上傳到本站）`);
