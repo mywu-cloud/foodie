@@ -131,10 +131,6 @@
           "name": "佳里區"
         },
         {
-          "id": "tainan-xinhua",
-          "name": "新化區"
-        },
-        {
           "id": "tainan-xinying",
           "name": "新營區"
         },
@@ -145,6 +141,10 @@
         {
           "id": "tainan-beiqu",
           "name": "北區"
+        },
+        {
+          "id": "tainan-longqi",
+          "name": "龍崎區"
         }
       ]
     },
@@ -254,8 +254,8 @@
           "name": "恆春鎮"
         },
         {
-          "id": "pingtung-wandan",
-          "name": "萬丹"
+          "id": "pingtung-wanluan",
+          "name": "萬巒鄉"
         }
       ]
     },

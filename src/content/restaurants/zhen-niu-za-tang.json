@@ -1,12 +1,13 @@
 {
   "urlId": "zhen-niu-za-tang",
-  "name": "珍 牛雜湯",
+  "name": "蓁牛雜湯",
   "regionId": "kaohsiung",
   "districtId": "zuoying",
   "categoryId": "snacks",
   "tierId": "unrated",
   "address": "高雄市左營區左營下路240號",
-  "openingHours": "05:30–14:00 (週一公休)",
+  "phone": "0919-888-130",
+  "openingHours": "05:30–14:00（週一公休，哈囉市場內）",
   "tags": [
     "牛雜湯"
   ],
