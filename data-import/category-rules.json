@@ -1,0 +1,24 @@
+{
+  "$說明": "匯入時自動判斷分類的規則。依序比對：先比對表格的「分類」欄，比不到再比對「店名」，最後比對「特色料理」。第一個符合的規則生效；都不符合就歸到 defaultCategory。可自行增修關鍵字。",
+  "defaultCategory": "snacks",
+  "rules": [
+    { "match": ["越南", "越式", "河粉", "法包", "法國麵包"], "category": "southeast-asian", "subcategory": "vietnamese" },
+    { "match": ["泰式", "泰國"], "category": "southeast-asian", "subcategory": "thai" },
+    { "match": ["Roastery", "ROASTERY", "Roasting", "ROASTING", "自家烘焙"], "category": "coffee", "subcategory": "specialty-coffee" },
+    { "match": ["Coffee", "COFFEE", "咖啡"], "category": "coffee" },
+    { "match": ["法式", "法國料理"], "category": "western", "subcategory": "french" },
+    { "match": ["披薩", "義大利", "義式"], "category": "western", "subcategory": "italian" },
+    { "match": ["牛排", "漢堡", "早午餐"], "category": "western" },
+    { "match": ["咖哩", "定食", "拉麵", "壽司", "丼", "日式"], "category": "japanese" },
+    { "match": ["韓式", "韓國", "部隊鍋"], "category": "korean" },
+    { "match": ["鐵板燒"], "category": "teppanyaki" },
+    { "match": ["海鮮", "海產", "生魚片", "章魚", "活蚵", "海味"], "category": "seafood" },
+    { "match": ["中菜", "點心", "腸粉", "水餃", "餃子", "烤鴨", "港式"], "category": "chinese" },
+    { "match": ["紅茶", "綠茶", "楊桃汁", "檸檬", "手搖", "茶飲"], "category": "drinks" },
+    { "match": ["豆花", "湯圓", "粉條冰", "綜合冰", "剉冰", "雪花冰", "蛋糕", "甜點"], "category": "dessert" },
+    { "match": ["麵包", "烘焙坊", "吐司專賣"], "category": "bakery" },
+    { "match": ["台菜", "臺灣菜", "台灣菜", "手路菜", "羊肉", "台式雞湯", "露水雞", "白斬雞", "鵝肉", "熱炒", "快炒"], "category": "taiwanese" },
+    { "match": ["火鍋", "涮涮鍋", "牛肉爐", "羊肉爐", "薑母鴨", "酸白菜", "火烤兩吃"], "category": "hotpot" },
+    { "match": ["燒肉", "燒烤", "串燒"], "category": "bbq" }
+  ]
+}

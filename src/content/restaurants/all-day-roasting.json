@@ -1,0 +1,16 @@
+{
+  "urlId": "all-day-roasting",
+  "name": "ALL DAY ROASTING",
+  "regionId": "kaohsiung",
+  "districtId": "zuoying",
+  "categoryId": "coffee",
+  "subcategoryId": "specialty-coffee",
+  "tierId": "unrated",
+  "address": "高雄市左營區榮耀街33號1樓",
+  "openingHours": "10:30–18:30",
+  "tags": [
+    "Coffee"
+  ],
+  "description": "Coffee",
+  "lastReviewedAt": "2026-11-23"
+}
