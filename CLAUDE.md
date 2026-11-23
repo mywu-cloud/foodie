@@ -74,7 +74,9 @@
 ```
 /                           首頁：搜尋列 + 熱門地區 + 分類（含更多分類收合）+ 本週精選
 /region/[region]            地區列表頁
-/category/[category]        分類列表頁（含二級細分類連結）
+/category                   分類瀏覽：全部分類與細分類＋店家數
+/category/[category]        分類列表頁（含二級細分類切換）
+/category/[category]/[sub]  細分類列表頁（例如 /category/coffee/specialty-coffee）
 /restaurant/[slug]          餐廳詳情頁
 /search                     搜尋頁（關鍵字 + 縣市／鄉鎮區／分類／分級篩選）
 ```
@@ -93,6 +95,7 @@ src/
   components/               TierBadge / RestaurantCard / CategoryCard 等
   pages/                    對應上方路由結構
   lib/taxonomy.ts           taxonomy 讀取與查詢的共用函式
+  lib/restaurants.ts        店家列表共用排序（分級 → 有封面照 → 最近複核日期）
 public/admin/               編輯後台（Sveltia CMS），config.yml 由 scripts/build-cms-config.mjs 產生，勿手改
 public/images/restaurants/  照片（後台上傳自動轉 WebP 1600px）
 workers/api.js              Cloudflare Worker：搜尋 API + 受保護的寫入端點

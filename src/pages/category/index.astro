@@ -1,0 +1,67 @@
+---
+// 分類瀏覽：列出全部分類（含細分類）與收錄店家數；沒有店家的分類放在後面並淡化顯示
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { categories } from '../../lib/taxonomy';
+
+const all = await getCollection('restaurants');
+const count = (id: string) => all.filter((r) => r.data.categoryId === id).length;
+const subCount = (cid: string, sid: string) =>
+  all.filter((r) => r.data.categoryId === cid && r.data.subcategoryId === sid).length;
+const list = categories
+  .map((c, i) => ({ ...c, n: count(c.id), i }))
+  .sort((a, b) => Number(b.n > 0) - Number(a.n > 0) || a.i - b.i);
+---
+<BaseLayout title="分類瀏覽" description="依料理分類瀏覽台灣美食店家：台式、小吃、海鮮、火鍋、咖啡…">
+  <section class="browse">
+    <h1>分類瀏覽</h1>
+    <p class="sub">共 {categories.length} 個分類、{all.length} 家店家</p>
+
+    <div class="grid">
+      {list.map((c) => (
+        <article class:list={['card', { empty: c.n === 0 }]}>
+          <a href={`/category/${c.id}/`} class="main">
+            <span class="name">{c.name}</span>
+            <span class="n">{c.n > 0 ? `${c.n} 家` : '即將收錄'}</span>
+          </a>
+          {c.subcategories.length > 0 && (
+            <div class="subs">
+              {c.subcategories.map((s) => (
+                <a href={`/category/${c.id}/${s.id}/`} class="sub-chip">
+                  {s.name}
+                  <span>{subCount(c.id, s.id)}</span>
+                </a>
+              ))}
+            </div>
+          )}
+        </article>
+      ))}
+    </div>
+
+    <p class="hint">想同時篩選地區與分級？<a href="/search">到搜尋頁 →</a></p>
+  </section>
+</BaseLayout>
+
+<style>
+  .browse { max-width: 1040px; margin: 0 auto; padding: 32px 24px 64px; }
+  h1 { font-size: 30px; margin: 0 0 4px; }
+  .sub { color: var(--text-muted); font-size: 14px; margin: 0 0 22px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--surface-0); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .card:hover { border-color: var(--border-strong); }
+  .card.empty { opacity: 0.55; }
+  .main { display: flex; align-items: baseline; justify-content: space-between; color: var(--text-primary); }
+  .main:hover .name { color: var(--accent); }
+  .name { font-family: 'Noto Serif TC', serif; font-weight: 700; font-size: 20px; }
+  .n { font-size: 13px; color: var(--text-muted); }
+  .subs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sub-chip {
+    font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); color: var(--text-secondary);
+  }
+  .sub-chip span { color: var(--text-muted); margin-left: 4px; }
+  .sub-chip:hover { color: var(--accent); }
+  .hint { margin-top: 28px; font-size: 14px; color: var(--text-muted); text-align: center; }
+</style>

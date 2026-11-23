@@ -1,0 +1,75 @@
+---
+// 分類列表頁與細分類列表頁共用：麵包屑、細分類切換、店家列表
+import type { CollectionEntry } from 'astro:content';
+import RestaurantCard from './RestaurantCard.astro';
+import { getCategory, type Category } from '../lib/taxonomy';
+import { sortRestaurants } from '../lib/restaurants';
+
+interface Props {
+  category: Category;
+  subId?: string;
+  inCategory: CollectionEntry<'restaurants'>[]; // 這個一級分類的全部店家（用來算細分類數量）
+}
+const { category, subId, inCategory } = Astro.props;
+const sub = category.subcategories.find((s) => s.id === subId);
+const results = sortRestaurants(subId ? inCategory.filter((r) => r.data.subcategoryId === subId) : inCategory);
+const subCount = (id: string) => inCategory.filter((r) => r.data.subcategoryId === id).length;
+---
+<section class="listing">
+  <nav class="crumbs" aria-label="麵包屑">
+    <a href="/category/">分類瀏覽</a>
+    <span>›</span>
+    {sub ? <a href={`/category/${category.id}/`}>{category.name}</a> : <span>{category.name}</span>}
+    {sub && (<><span>›</span><span>{sub.name}</span></>)}
+  </nav>
+
+  <h1>{sub ? `${category.name}・${sub.name}` : category.name}</h1>
+  <p class="count">{results.length} 家店家 · 依分級排序</p>
+
+  {category.subcategories.length > 0 && (
+    <div class="chips" role="group" aria-label="細分類">
+      <a href={`/category/${category.id}/`} class:list={['chip', { active: !sub }]}>全部 {inCategory.length}</a>
+      {category.subcategories.map((s) => (
+        <a href={`/category/${category.id}/${s.id}/`} class:list={['chip', { active: s.id === subId }]}>
+          {s.name} {subCount(s.id)}
+        </a>
+      ))}
+    </div>
+  )}
+
+  <div class="list">
+    {results.map((r) => (
+      <RestaurantCard
+        slug={r.id}
+        name={r.data.name}
+        regionId={r.data.regionId}
+        districtId={r.data.districtId}
+        categoryName={getCategory(r.data.categoryId)?.name ?? r.data.categoryId}
+        tierId={r.data.tierId}
+        coverImage={r.data.coverImage}
+      />
+    ))}
+  </div>
+  {results.length === 0 && (
+    <p class="empty">
+      這個{sub ? '細分類' : '分類'}還沒有收錄店家，敬請期待。
+      <a href="/category/">看看其他分類 →</a>
+    </p>
+  )}
+</section>
+
+<style>
+  .listing { max-width: 880px; margin: 0 auto; padding: 28px 24px 64px; }
+  .crumbs { display: flex; gap: 8px; font-size: 13px; color: var(--text-muted); }
+  h1 { font-size: 30px; margin: 12px 0 4px; }
+  .count { color: var(--text-muted); font-size: 14px; margin: 0 0 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .chip {
+    padding: 7px 14px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface-0);
+    color: var(--text-secondary); font-size: 14px;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .chip.active { background: var(--text-primary); border-color: var(--text-primary); color: #fff; }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .empty { text-align: center; color: var(--text-muted); padding: 40px 0; }
+</style>
