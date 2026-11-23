@@ -10,15 +10,22 @@ const totalCount = allRestaurants.length;
 
 const tierOrder = (tierId: string) => tiers.find((t) => t.id === tierId)?.order ?? 99;
 
-// 「附近推薦」：優先顯示必吃首選 / 巷弄推薦，資料不足時退回顯示全部已收錄店家。
-const featured = (
-  allRestaurants.filter((r) => r.data.tierId === 'must-eat' || r.data.tierId === 'recommended').length > 0
-    ? allRestaurants.filter((r) => r.data.tierId === 'must-eat' || r.data.tierId === 'recommended')
-    : allRestaurants
-)
-  .slice()
-  .sort((a, b) => tierOrder(a.data.tierId) - tierOrder(b.data.tierId))
-  .slice(0, 9);
+// 「附近推薦」：全部店家依「分級 → 有封面照 → 最近複核日期」排序；
+// 先顯示前 9 家，可依分類篩選、按「顯示更多」繼續看（篩選與分頁在前端處理）。
+const FEATURED_PAGE = 9;
+const featured = allRestaurants.slice().sort((a, b) => {
+  const tierDiff = tierOrder(a.data.tierId) - tierOrder(b.data.tierId);
+  if (tierDiff !== 0) return tierDiff;
+  const photoDiff = Number(Boolean(b.data.coverImage)) - Number(Boolean(a.data.coverImage));
+  if (photoDiff !== 0) return photoDiff;
+  return (b.data.lastReviewedAt ?? '').localeCompare(a.data.lastReviewedAt ?? '');
+});
+// 篩選按鈕：只列出有店家的分類（首頁分類在前，其餘依分類順序）
+const featuredCategoryIds = new Set(allRestaurants.map((r) => r.data.categoryId));
+const filterCategories = [
+  ...homeCategories.filter((c) => featuredCategoryIds.has(c.id)),
+  ...categories.filter((c) => !c.showOnHome && featuredCategoryIds.has(c.id)),
+];
 
 // 「本週人氣小吃」：目前站上沒有收藏數／打卡數統計，改以分級 + 最近複核日期排序，
 // 呈現「編輯精選」而非虛構的熱門數字。
@@ -161,21 +168,21 @@ const cityGuide = [...regions].sort((a, b) => orderOf(a.id) - orderOf(b.id));
     <div class="section-head">
       <div>
         <h2>附近推薦</h2>
-        <p class="section-sub">{featured.length} 家店家 · 依分級排序</p>
+        <p class="section-sub"><span id="feature-count">{featured.length}</span> 家店家 · 依分級排序</p>
       </div>
     </div>
 
-    {homeCategories.length > 0 && (
+    {filterCategories.length > 0 && (
       <div class="filter-row" role="group" aria-label="依分類篩選">
         <button type="button" class="pill is-active" data-cat="全部">全部</button>
-        {homeCategories.map((c) => (
+        {filterCategories.map((c) => (
           <button type="button" class="pill" data-cat={c.name}>{c.name}</button>
         ))}
       </div>
     )}
 
     {featured.length > 0 ? (
-      <div class="feature-grid" id="feature-grid">
+      <div class="feature-grid" id="feature-grid" data-page={FEATURED_PAGE}>
         {featured.map((r) => (
           <RestaurantFeatureCard
             slug={r.id}
@@ -190,6 +197,9 @@ const cityGuide = [...regions].sort((a, b) => orderOf(a.id) - orderOf(b.id));
             coverImage={r.data.coverImage}
           />
         ))}
+      </div>
+      <div class="more-row">
+        <button type="button" class="more-btn" id="feature-more">顯示更多</button>
       </div>
     ) : (
       <p class="empty">店家資料建置中，很快就會有第一批推薦名單。</p>
@@ -244,19 +254,39 @@ const cityGuide = [...regions].sort((a, b) => orderOf(a.id) - orderOf(b.id));
 </BaseLayout>
 
 <script>
+  // 附近推薦：分類篩選 + 「顯示更多」分頁
   const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-row .pill');
-  const cards = document.querySelectorAll<HTMLElement>('#feature-grid [data-category]');
+  const grid = document.getElementById('feature-grid');
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('#feature-grid [data-category]'));
+  const moreBtn = document.getElementById('feature-more') as HTMLButtonElement | null;
+  const countEl = document.getElementById('feature-count');
+  const pageSize = Number(grid?.dataset.page ?? 9);
+  let currentCat = '全部';
+  let shown = pageSize;
+  const render = () => {
+    const matches = cards.filter((c) => currentCat === '全部' || c.dataset.category === currentCat);
+    cards.forEach((c) => (c.style.display = 'none'));
+    matches.slice(0, shown).forEach((c) => (c.style.display = ''));
+    if (countEl) countEl.textContent = String(matches.length);
+    if (moreBtn) {
+      moreBtn.hidden = matches.length <= shown;
+      moreBtn.textContent = `顯示更多（還有 ${matches.length - shown} 家）`;
+    }
+  };
   buttons.forEach((btn) => {
     btn.addEventListener('click', () => {
       buttons.forEach((b) => b.classList.remove('is-active'));
       btn.classList.add('is-active');
-      const cat = btn.dataset.cat;
-      cards.forEach((card) => {
-        const match = cat === '全部' || card.dataset.category === cat;
-        card.style.display = match ? '' : 'none';
-      });
+      currentCat = btn.dataset.cat ?? '全部';
+      shown = pageSize;
+      render();
     });
   });
+  moreBtn?.addEventListener('click', () => {
+    shown += pageSize;
+    render();
+  });
+  render();
 
   // 地點／餐點類型 多選下拉選單
   const fields = document.querySelectorAll<HTMLElement>('.search-field');
@@ -588,6 +618,27 @@ const cityGuide = [...regions].sort((a, b) => orderOf(a.id) - orderOf(b.id));
     background: var(--text-primary);
     color: var(--bg-page);
     border-color: var(--text-primary);
+  }
+  .more-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+  }
+  .more-btn {
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong, #dccdb6);
+    background: var(--surface-0, #fff);
+    color: var(--text-primary);
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .more-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .more-btn[hidden] {
+    display: none;
   }
   .feature-grid {
     display: grid;
