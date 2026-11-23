@@ -1,0 +1,50 @@
+{
+  "urlId": "khh-seafood",
+  "name": "古家海鮮",
+  "regionId": "kaohsiung",
+  "districtId": "zuoying",
+  "categoryId": "seafood",
+  "subcategoryId": "",
+  "tierId": "must-eat",
+  "coverImage": "",
+  "gallery": [
+    {
+      "src": "/images/restaurants/20260201_111920_v.webp",
+      "caption": ""
+    },
+    {
+      "src": "/images/restaurants/20260201_114817_v.webp",
+      "caption": ""
+    },
+    {
+      "src": "/images/restaurants/20260201_115047_v.webp",
+      "caption": ""
+    },
+    {
+      "src": "/images/restaurants/20260201_115129_v.webp",
+      "caption": ""
+    },
+    {
+      "src": "/images/restaurants/20260201_115355_v.webp",
+      "caption": ""
+    },
+    {
+      "src": "/images/restaurants/20260201_120151_v.webp",
+      "caption": ""
+    },
+    {
+      "src": "/images/restaurants/20260201_120454_v.webp",
+      "caption": ""
+    }
+  ],
+  "description": "一間從1997年開到現在、將近三十年的老字號海鮮餐廳—古家海鮮，從2023年起連續四年入選米其林指南，是高雄人聚餐宴客的口袋名單！",
+  "address": "813高雄市左營區新上里德威街55號",
+  "phone": "07-5508687",
+  "openingHours": "11:00–14:00, 17:30–22:00 (週一休)",
+  "priceRange": "$$$$",
+  "tags": [],
+  "lat": null,
+  "lng": null,
+  "editorNote": "",
+  "lastReviewedAt": "2026-02-01"
+}
