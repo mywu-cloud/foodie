@@ -72,8 +72,13 @@ src/
   components/               TierBadge / RestaurantCard / CategoryCard 等
   pages/                    對應上方路由結構
   lib/taxonomy.ts           taxonomy 讀取與查詢的共用函式
+public/admin/               編輯後台（Sveltia CMS），config.yml 由 scripts/build-cms-config.mjs 產生，勿手改
+public/images/restaurants/  照片（後台上傳自動轉 WebP 1600px）
 workers/api.js              Cloudflare Worker：搜尋 API + 受保護的寫入端點
 scripts/fetch-data.mjs      GitHub Actions 排程執行的資料同步腳本
+scripts/build-cms-config.mjs  taxonomy → 後台下拉選單
+scripts/validate-content.mjs  跨檔案驗證（id 對應、照片存在），build 前執行，失敗即不部署
+scripts/import-csv.mjs      CSV 批次匯入（全部通過才寫檔；既有檔預設跳過）
 .github/workflows/          排程同步 + 部署
 ```
 
@@ -81,4 +86,10 @@ scripts/fetch-data.mjs      GitHub Actions 排程執行的資料同步腳本
 
 - 收錄範圍：全台同步收錄，或先集中南部（高雄起步）再擴張
 - 分級複核週期：`lastReviewedAt` 多久沒更新要視為過舊、需要重新複核
-- 編輯後台：目前寫入靠直接編輯 JSON + git commit，資料量變大後可能需要一個簡易後台介面（Worker 的寫入端點已預留）
+## 編輯後台（已決定）
+
+採用 Git-based CMS（Sveltia CMS，`/admin`），不自建資料庫後台：存檔 = commit JSON 與照片到 main → Actions 部署。理由：維持「JSON + 靜態 build」的資料層不變、零伺服器成本、權限交給 GitHub repo 寫入權限。批次建檔用 `scripts/import-csv.mjs`。操作說明見 `docs/ADMIN.md`。
+
+- 新增 taxonomy 欄位或餐廳欄位時，要同步更新 `src/content/config.ts`、`scripts/build-cms-config.mjs`、`scripts/import-csv.mjs`
+- 選填欄位在 schema 用 `optional()` helper（把 `""`／`null` 視為未填），因為 CMS 可能存出空值
+- Worker 的寫入端點保留給未來前台投稿／多人協作，目前不使用

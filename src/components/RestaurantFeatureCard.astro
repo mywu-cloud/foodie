@@ -14,15 +14,20 @@ interface Props {
   description: string;
   priceRange?: string;
   openingHours?: string;
+  coverImage?: string;
 }
-const { slug, name, regionId, districtId, categoryName, tierId, description, priceRange, openingHours } =
+const { slug, name, regionId, districtId, categoryName, tierId, description, priceRange, openingHours, coverImage } =
   Astro.props;
 const region = getRegion(regionId);
 const district = region?.districts.find((d) => d.id === districtId);
 ---
 <article class="feature-card" data-category={categoryName}>
   <a href={`/restaurant/${slug}`} class="thumb" aria-label={name}>
-    <span class="thumb-label">{name}</span>
+    {coverImage ? (
+      <img src={coverImage} alt={name} loading="lazy" decoding="async" />
+    ) : (
+      <span class="thumb-label">{name}</span>
+    )}
   </a>
   <div class="body">
     <div class="title-row">
@@ -60,6 +65,14 @@ const district = region?.districts.find((d) => d.id === districtId);
     justify-content: center;
     background: linear-gradient(135deg, var(--surface-1, #f1e7d8), var(--surface-2, #f4ede1));
     text-decoration: none;
+    overflow: hidden;
+  }
+  .thumb img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .thumb-label {
     font-family: 'Noto Serif TC', serif;

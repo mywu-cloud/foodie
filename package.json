@@ -4,9 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "npm run cms-config && astro dev",
+    "build": "npm run cms-config && npm run validate && astro build",
     "preview": "astro preview",
+    "cms-config": "node scripts/build-cms-config.mjs",
+    "validate": "node scripts/validate-content.mjs",
+    "import": "node scripts/import-csv.mjs",
     "sync-data": "node scripts/fetch-data.mjs",
     "deploy": "wrangler pages deploy dist"
   },

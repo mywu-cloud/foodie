@@ -9,13 +9,18 @@ interface Props {
   districtId: string;
   categoryName: string;
   tierId: string;
+  coverImage?: string;
 }
-const { slug, name, regionId, districtId, categoryName, tierId } = Astro.props;
+const { slug, name, regionId, districtId, categoryName, tierId, coverImage } = Astro.props;
 const region = getRegion(regionId);
 const district = region?.districts.find((d) => d.id === districtId);
 ---
 <a href={`/restaurant/${slug}`} class="restaurant-card">
-  <div class="thumb" aria-hidden="true">{name.slice(0, 1)}</div>
+  {coverImage ? (
+    <img class="thumb" src={coverImage} alt="" loading="lazy" decoding="async" width="46" height="46" />
+  ) : (
+    <div class="thumb" aria-hidden="true">{name.slice(0, 1)}</div>
+  )}
   <div class="info">
     <p class="name">{name}</p>
     <p class="meta">{region?.name}・{district?.name}・{categoryName}</p>
@@ -53,6 +58,7 @@ const district = region?.districts.find((d) => d.id === districtId);
     font-family: 'Noto Serif TC', serif;
     font-weight: 700;
     font-size: 16px;
+    object-fit: cover;
   }
   .info {
     flex: 1;

@@ -7,6 +7,11 @@ on:
   push:
     branches: [main]
 
+# 後台連續存檔會連續觸發部署；排隊依序執行，避免兩次部署互相覆蓋
+concurrency:
+  group: deploy-twfood
+  cancel-in-progress: false
+
 jobs:
   sync-and-deploy:
     runs-on: ubuntu-latest
@@ -18,13 +23,18 @@ jobs:
           node-version: 20
 
       - run: npm ci
+      # 資料同步 + 快照只在「每日排程 / 手動觸發」時跑。
+      # push（包含 /admin 後台每次存檔產生的 commit）只需要 build + 部署，
+      # 否則每存一次檔就多一份空快照 commit。
       - run: npm run sync-data
+        if: github.event_name != 'push'
         env:
           # 讀取用的官方 API key（僅查詢，不做寫入）
           DATA_SOURCE_API_KEY: ${{ secrets.DATA_SOURCE_API_KEY }}
 
       # 每次同步都是新增快照檔案，不覆蓋歷史 —— 見 scripts/fetch-data.mjs 的說明
       - name: 提交新的資料快照
+        if: github.event_name != 'push'
         run: |
           git config user.name "food-site-bot"
           git config user.email "bot@users.noreply.github.com"
@@ -40,7 +50,11 @@ jobs:
           done
           git push
 
+      # build 會先產生 /admin 設定檔、執行資料交叉驗證（scripts/validate-content.mjs），驗證失敗就不部署
       - run: npm run build
+        env:
+          # /admin 的 GitHub OAuth 登入 Worker 網址，在 repo Settings → Variables 設定（沒設定時後台用 Token 登入）
+          CMS_AUTH_URL: ${{ vars.CMS_AUTH_URL }}
 
       - name: 部署到 Cloudflare Pages
         uses: cloudflare/pages-action@v1
