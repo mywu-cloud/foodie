@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { tiers } from '../lib/taxonomy';
+---
+<BaseLayout title="資料來源與分級說明" description="台灣美食通的店家資料如何建立、查證，以及分級怎麼評定">
+  <article class="about">
+    <h1>資料來源與分級說明</h1>
+
+    <h2>店家資料</h2>
+    <p>
+      店家名單由編輯團隊實地品嚐、整理後建檔。店名、地址、營業時間與電話會再參考 Google 地圖查證，
+      以常態營業時間為準；臨時店休、節日營業時間可能與網站不同，出發前建議再向店家確認。
+    </p>
+
+    <h2>分級怎麼評定</h2>
+    <p>
+      每家店的分級都由編輯評定。評定時會參考實際用餐經驗，並參考 Google 地圖的評分與評論，
+      但分級不是由評分自動換算——同樣 4.5 顆星的店，在我們這裡可能是不同的分級。
+    </p>
+    <ul class="tiers">
+      {[...tiers].sort((a, b) => a.order - b.order).map((t) => <li>{t.name}</li>)}
+    </ul>
+    <p class="note">「待評鑑」表示店家已收錄，但編輯還沒完成評定。</p>
+
+    <h2>照片與文字</h2>
+    <p>網站上的店家介紹由編輯撰寫；照片為編輯自行拍攝或經店家授權使用，不轉載其他網站的評論與照片。</p>
+  </article>
+</BaseLayout>
+
+<style>
+  .about { max-width: 720px; margin: 0 auto; padding: 36px 24px 64px; line-height: 1.85; }
+  h1 { font-size: 30px; margin: 0 0 12px; }
+  h2 { font-size: 20px; margin: 32px 0 6px; }
+  p { color: var(--text-secondary); margin: 0; }
+  .tiers { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 14px 0 8px; }
+  .tiers li { padding: 4px 12px; border-radius: 999px; background: var(--surface-2); font-size: 14px; }
+  .note { font-size: 14px; color: var(--text-muted); }
+</style>

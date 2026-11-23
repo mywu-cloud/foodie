@@ -79,6 +79,7 @@
 /category/[category]/[sub]  細分類列表頁（例如 /category/coffee/specialty-coffee）
 /restaurant/[slug]          餐廳詳情頁
 /search                     搜尋頁（關鍵字 + 縣市／鄉鎮區／分類／分級篩選）
+/about-data                 資料來源與分級說明（footer 連結；修改資料政策時要同步更新）
 ```
 
 搜尋/篩選以查詢字串組合（如 `/search?q=牛肉湯&region=kaohsiung&category=snacks&tier=must-eat`）。目前由靜態頁 `src/pages/search.astro` 在前端篩選（build 時輸出全部店家卡片），不需要 Worker；店家數量大到頁面過重時，再改由 Worker 的 `/search` 端點處理。首頁搜尋框送出的 `district=縣市:鄉鎮區`、`category=分類[:細分類]` 可帶多個值。
