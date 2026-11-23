@@ -1,12 +1,13 @@
 {
   "urlId": "wan-tai-zhu-jiao",
-  "name": "萬泰豬腳",
+  "name": "萬泰豬腳大王",
   "regionId": "pingtung",
-  "districtId": "pingtung-wandan",
+  "districtId": "pingtung-wanluan",
   "categoryId": "snacks",
   "tierId": "unrated",
-  "address": "屏東縣萬丹沿海路一帶",
-  "openingHours": "09:00–18:00",
+  "address": "屏東縣萬巒鄉民和路32-1號",
+  "phone": "08-781-2558",
+  "openingHours": "08:00–16:00（週二、三公休）",
   "tags": [],
   "description": "招牌：滷豬腳、滷蹄膀 (在地老店)",
   "lastReviewedAt": "2026-11-23"

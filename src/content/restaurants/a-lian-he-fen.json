@@ -2,12 +2,13 @@
   "urlId": "a-lian-he-fen",
   "name": "阿蓮河粉",
   "regionId": "kaohsiung",
-  "districtId": "kaohsiung-qianjin",
+  "districtId": "lingya",
   "categoryId": "southeast-asian",
   "subcategoryId": "vietnamese",
   "tierId": "unrated",
-  "address": "高雄市前金區自強三路105號",
-  "openingHours": "11:00–00:00",
+  "address": "高雄市苓雅區自強三路105號",
+  "phone": "07-333-7403",
+  "openingHours": "11:00–00:00（週一公休）",
   "tags": [
     "越南料理"
   ],
