@@ -1,0 +1,262 @@
+---
+// 搜尋頁：/search?q=牛肉湯&region=tainan&district=tainan:zhongxi&category=snacks&tier=must-eat
+// 靜態網站，所有店家在 build 時輸出成卡片，篩選在前端完成（不需要 Worker）。
+// 支援首頁搜尋框送來的參數：district=縣市:鄉鎮區（可多個）、category=分類 或 分類:細分類（可多個）、q=關鍵字
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RestaurantCard from '../components/RestaurantCard.astro';
+import { regions, categories, tiers, getCategory, getRegion } from '../lib/taxonomy';
+
+const all = await getCollection('restaurants');
+const tierOrder = (id: string) => tiers.find((t) => t.id === id)?.order ?? 99;
+const sorted = all.slice().sort((a, b) => {
+  const t = tierOrder(a.data.tierId) - tierOrder(b.data.tierId);
+  if (t !== 0) return t;
+  const p = Number(Boolean(b.data.coverImage)) - Number(Boolean(a.data.coverImage));
+  if (p !== 0) return p;
+  return (b.data.lastReviewedAt ?? '').localeCompare(a.data.lastReviewedAt ?? '');
+});
+
+// 每張卡片的可搜尋文字：店名、介紹、標籤、地址、地區、分類
+const searchText = (r: (typeof all)[number]) => {
+  const region = getRegion(r.data.regionId);
+  const district = region?.districts.find((d) => d.id === r.data.districtId);
+  const cat = getCategory(r.data.categoryId);
+  const sub = cat?.subcategories.find((s) => s.id === r.data.subcategoryId);
+  return [r.data.name, r.data.description, r.data.address, ...r.data.tags, region?.name, district?.name, cat?.name, sub?.name]
+    .filter(Boolean)
+    .join(' ')
+    .replace(/臺/g, '台')
+    .toLowerCase();
+};
+const usedRegions = new Set(all.map((r) => r.data.regionId));
+const usedCategories = new Set(all.map((r) => r.data.categoryId));
+---
+<BaseLayout title="搜尋店家" description="依地區、分類、分級或店名搜尋台灣美食店家">
+  <section class="search-page">
+    <h1>搜尋店家</h1>
+
+    <form class="filters" id="filters" action="/search" method="get">
+      <input type="search" name="q" id="f-q" placeholder="店名、料理、地址：牛肉湯、火雞肉飯…" autocomplete="off" />
+      <select name="region" id="f-region" aria-label="縣市">
+        <option value="">全部縣市</option>
+        {regions.filter((r) => usedRegions.has(r.id)).map((r) => <option value={r.id}>{r.name}</option>)}
+      </select>
+      <select name="district" id="f-district" aria-label="鄉鎮區">
+        <option value="">全部鄉鎮區</option>
+        {regions.map((r) =>
+          r.districts.map((d) => (
+            <option value={`${r.id}:${d.id}`} data-region={r.id}>{d.name}</option>
+          ))
+        )}
+      </select>
+      <select name="category" id="f-category" aria-label="分類">
+        <option value="">全部分類</option>
+        {categories.filter((c) => usedCategories.has(c.id)).map((c) => (
+          <>
+            <option value={c.id}>{c.name}</option>
+            {c.subcategories.map((s) => <option value={`${c.id}:${s.id}`}>　{c.name}・{s.name}</option>)}
+          </>
+        ))}
+      </select>
+      <select name="tier" id="f-tier" aria-label="分級">
+        <option value="">全部分級</option>
+        {[...tiers].sort((a, b) => a.order - b.order).map((t) => <option value={t.id}>{t.name}</option>)}
+      </select>
+      <button type="reset" class="reset" id="f-reset">清除</button>
+    </form>
+
+    <p class="summary" id="summary" aria-live="polite">共 {all.length} 家</p>
+
+    <div class="results" id="results">
+      {sorted.map((r) => (
+        <div
+          class="result"
+          data-region={r.data.regionId}
+          data-district={`${r.data.regionId}:${r.data.districtId}`}
+          data-category={r.data.categoryId}
+          data-sub={r.data.subcategoryId ? `${r.data.categoryId}:${r.data.subcategoryId}` : ''}
+          data-tier={r.data.tierId}
+          data-text={searchText(r)}
+        >
+          <RestaurantCard
+            slug={r.id}
+            name={r.data.name}
+            regionId={r.data.regionId}
+            districtId={r.data.districtId}
+            categoryName={getCategory(r.data.categoryId)?.name ?? r.data.categoryId}
+            tierId={r.data.tierId}
+            coverImage={r.data.coverImage}
+          />
+        </div>
+      ))}
+    </div>
+    <p class="empty" id="empty" hidden>找不到符合條件的店家，試試放寬條件或換個關鍵字。</p>
+    <div class="more-row"><button type="button" class="more-btn" id="more" hidden>顯示更多</button></div>
+  </section>
+</BaseLayout>
+
+<script>
+  const PAGE = 30;
+  const form = document.getElementById('filters') as HTMLFormElement;
+  const q = document.getElementById('f-q') as HTMLInputElement;
+  const regionSel = document.getElementById('f-region') as HTMLSelectElement;
+  const districtSel = document.getElementById('f-district') as HTMLSelectElement;
+  const categorySel = document.getElementById('f-category') as HTMLSelectElement;
+  const tierSel = document.getElementById('f-tier') as HTMLSelectElement;
+  const items = Array.from(document.querySelectorAll<HTMLElement>('#results .result'));
+  const summary = document.getElementById('summary')!;
+  const empty = document.getElementById('empty')!;
+  const more = document.getElementById('more') as HTMLButtonElement;
+  const districtOptions = Array.from(districtSel.options).slice(1);
+
+  // 首頁送來的多選條件（district / category 可能有多個）
+  const params = new URLSearchParams(location.search);
+  let multiDistricts = params.getAll('district').filter(Boolean);
+  let multiCategories = params.getAll('category').filter(Boolean);
+  let shown = PAGE;
+
+  const norm = (s: string) => s.replace(/臺/g, '台').trim().toLowerCase();
+
+  function syncDistrictOptions() {
+    const region = regionSel.value;
+    districtOptions.forEach((o) => {
+      o.hidden = Boolean(region) && o.dataset.region !== region;
+    });
+    if (districtSel.selectedOptions[0]?.hidden) districtSel.value = '';
+    districtSel.disabled = !region;
+  }
+
+  // 初始值：單一條件直接放進選單；多個時保留在 multi* 內
+  q.value = params.get('q') ?? '';
+  tierSel.value = params.get('tier') ?? '';
+  if (multiDistricts.length) {
+    const regionsInDistricts = new Set(multiDistricts.map((d) => d.split(':')[0]));
+    if (regionsInDistricts.size === 1) regionSel.value = [...regionsInDistricts][0];
+  } else {
+    regionSel.value = params.get('region') ?? '';
+  }
+  syncDistrictOptions();
+  if (multiDistricts.length === 1) {
+    districtSel.value = multiDistricts[0];
+    multiDistricts = [];
+  }
+  if (multiCategories.length === 1) {
+    categorySel.value = multiCategories[0];
+    multiCategories = [];
+  }
+
+  function matchCategory(el: HTMLElement, value: string) {
+    return value.includes(':') ? el.dataset.sub === value : el.dataset.category === value;
+  }
+
+  function apply(updateUrl = true) {
+    const words = norm(q.value).split(/\s+/).filter(Boolean);
+    const region = regionSel.value;
+    const district = districtSel.value;
+    const category = categorySel.value;
+    const tier = tierSel.value;
+
+    const matches = items.filter((el) => {
+      if (words.length && !words.every((w) => el.dataset.text!.includes(w))) return false;
+      if (multiDistricts.length && !multiDistricts.includes(el.dataset.district!)) return false;
+      if (region && el.dataset.region !== region) return false;
+      if (district && el.dataset.district !== district) return false;
+      if (multiCategories.length && !multiCategories.some((c) => matchCategory(el, c))) return false;
+      if (category && !matchCategory(el, category)) return false;
+      if (tier && el.dataset.tier !== tier) return false;
+      return true;
+    });
+
+    items.forEach((el) => (el.hidden = true));
+    matches.slice(0, shown).forEach((el) => (el.hidden = false));
+
+    const extra = multiDistricts.length || multiCategories.length ? '（含首頁選的多個地區／分類）' : '';
+    summary.textContent = `找到 ${matches.length} 家${extra}`;
+    empty.hidden = matches.length > 0;
+    more.hidden = matches.length <= shown;
+    more.textContent = `顯示更多（還有 ${matches.length - shown} 家）`;
+
+    if (updateUrl) {
+      const p = new URLSearchParams();
+      if (q.value.trim()) p.set('q', q.value.trim());
+      if (region) p.set('region', region);
+      if (district) p.set('district', district);
+      multiDistricts.forEach((d) => p.append('district', d));
+      if (category) p.set('category', category);
+      multiCategories.forEach((c) => p.append('category', c));
+      if (tier) p.set('tier', tier);
+      const qs = p.toString();
+      history.replaceState(null, '', qs ? `/search?${qs}` : '/search');
+    }
+  }
+
+  const reset = () => {
+    shown = PAGE;
+    apply();
+  };
+  // 手動改選單時，放棄首頁帶來的多選條件
+  regionSel.addEventListener('change', () => {
+    multiDistricts = [];
+    syncDistrictOptions();
+    reset();
+  });
+  districtSel.addEventListener('change', () => {
+    multiDistricts = [];
+    reset();
+  });
+  categorySel.addEventListener('change', () => {
+    multiCategories = [];
+    reset();
+  });
+  tierSel.addEventListener('change', reset);
+  q.addEventListener('input', reset);
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    reset();
+  });
+  form.addEventListener('reset', () => {
+    multiDistricts = [];
+    multiCategories = [];
+    setTimeout(() => {
+      syncDistrictOptions();
+      reset();
+    });
+  });
+  more.addEventListener('click', () => {
+    shown += PAGE;
+    apply(false);
+  });
+
+  apply(false);
+</script>
+
+<style>
+  .search-page { max-width: 880px; margin: 0 auto; padding: 32px 24px 64px; }
+  .search-page h1 { font-size: 30px; margin: 0 0 16px; }
+  .filters { display: grid; grid-template-columns: 2fr repeat(4, 1fr) auto; gap: 10px; }
+  .filters input,
+  .filters select,
+  .filters .reset {
+    height: 44px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-0);
+    padding: 0 12px; font: inherit; font-size: 14px; color: var(--text-primary); min-width: 0;
+  }
+  .filters select:disabled { opacity: 0.55; }
+  .filters .reset { cursor: pointer; color: var(--text-secondary); }
+  .filters .reset:hover { border-color: var(--accent); color: var(--accent); }
+  .summary { color: var(--text-muted); font-size: 14px; margin: 18px 0 12px; }
+  .results { display: flex; flex-direction: column; gap: 10px; }
+  .result[hidden] { display: none; }
+  .empty { text-align: center; color: var(--text-muted); padding: 40px 0; }
+  .more-row { display: flex; justify-content: center; margin-top: 24px; }
+  .more-btn {
+    padding: 10px 22px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface-0);
+    font-size: 14px; cursor: pointer; color: var(--text-primary);
+  }
+  .more-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .more-btn[hidden] { display: none; }
+  @media (max-width: 760px) {
+    .filters { grid-template-columns: 1fr 1fr; }
+    .filters input { grid-column: 1 / -1; }
+  }
+</style>
