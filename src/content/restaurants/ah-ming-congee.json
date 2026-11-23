@@ -1,19 +1,33 @@
 {
   "urlId": "ah-ming-congee",
-  "name": "阿明鹹粥",
-  "regionId": "kaohsiung",
-  "districtId": "yancheng",
+  "name": "廣仔虱目魚丸",
+  "regionId": "tainan",
+  "districtId": "zhongxi",
   "categoryId": "taiwanese",
-  "tierId": "must-eat",
-  "address": "高雄市鹽埕區某某路 12 號",
-  "phone": "07-1234567",
-  "openingHours": "06:00-13:00（週一公休）",
+  "subcategoryId": "",
+  "tierId": "local-favorite",
+  "coverImage": "",
+  "gallery": [
+    {
+      "src": "/images/restaurants/20261123_130419_v.webp",
+      "caption": ""
+    },
+    {
+      "src": "/images/restaurants/20261123_130151_v.webp",
+      "caption": ""
+    }
+  ],
+  "description": "一間開業70多年的肉燥飯、魚丸湯、虱目魚料理店。",
+  "address": "700臺南市中西區永華里開山路58號",
+  "phone": "06-2238531",
+  "openingHours": "6:00–14:30（週二公休）",
   "priceRange": "$",
   "tags": [
     "在地排隊名店",
     "只收現金"
   ],
-  "description": "在地經營三十年的鹹粥老店，虱目魚肚湯是招牌。",
-  "lastReviewedAt": "2026-08-01",
-  "editorNote": "多次現場走訪確認品質穩定，且長期為在地口碑首選，列為必吃首選。"
+  "lat": null,
+  "lng": null,
+  "editorNote": "長期在地口碑首選，列為必吃首選。",
+  "lastReviewedAt": "2026-11-23"
 }
