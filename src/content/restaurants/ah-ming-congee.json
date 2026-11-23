@@ -6,17 +6,7 @@
   "categoryId": "taiwanese",
   "subcategoryId": "",
   "tierId": "local-favorite",
-  "coverImage": "",
-  "gallery": [
-    {
-      "src": "/images/restaurants/20261123_130419_v.webp",
-      "caption": ""
-    },
-    {
-      "src": "/images/restaurants/20261123_130151_v.webp",
-      "caption": ""
-    }
-  ],
+  "coverImage": "/images/restaurants/20261123_130419_v.webp",
   "description": "一間開業70多年的肉燥飯、魚丸湯、虱目魚料理店。",
   "address": "700臺南市中西區永華里開山路58號",
   "phone": "06-2238531",
@@ -29,5 +19,15 @@
   "lat": null,
   "lng": null,
   "editorNote": "長期在地口碑首選，列為必吃首選。",
-  "lastReviewedAt": "2026-11-23"
+  "lastReviewedAt": "2026-11-23",
+  "gallery": [
+    {
+      "caption": "",
+      "src": "/images/restaurants/20261123_130419_v.webp"
+    },
+    {
+      "caption": "",
+      "src": "/images/restaurants/20261123_130151_v.webp"
+    }
+  ]
 }
