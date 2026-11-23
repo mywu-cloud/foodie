@@ -32,8 +32,11 @@ const dupCheck = (label, ids) => {
   }
 };
 dupCheck('縣市', regions.map((r) => r.id));
-regions.forEach((r) => dupCheck(`${r.name} 的鄉鎮區`, r.districts.map((d) => d.id)));
+// 鄉鎮區、細分類的代號必須「全站」唯一（不只在同一縣市／分類內）：
+// 後台下拉選單不允許重複值，重複會讓 /admin 整個打不開（例如新竹、嘉義都用 east）
+dupCheck('鄉鎮區（全站）', regions.flatMap((r) => r.districts.map((d) => d.id)));
 dupCheck('分類', categories.map((c) => c.id));
+dupCheck('細分類（全站）', categories.flatMap((c) => c.subcategories.map((s) => s.id)));
 dupCheck('分級', tiers.map((t) => t.id));
 
 const files = (await readdir(RESTAURANTS)).filter((f) => f.endsWith('.json'));

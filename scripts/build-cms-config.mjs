@@ -22,8 +22,9 @@ const { regions } = await readJson('regions.json');
 const { categories } = await readJson('categories.json');
 const { tiers } = await readJson('tiers.json');
 
-// 鄉鎮區 id 只在同一縣市內唯一（例如新竹、嘉義都有 east），所以 label 帶上縣市名稱。
-// 選錯縣市/鄉鎮區組合會被 scripts/validate-content.mjs 在 build 時擋下來。
+// 鄉鎮區、細分類 id 必須全站唯一（Sveltia 的 select 不允許重複值，重複會讓整個後台打不開），
+// 由 scripts/validate-content.mjs 在 build 時檢查。label 帶上縣市名稱方便辨識；
+// 選錯縣市/鄉鎮區組合也會在 build 時被擋下來。
 const districtOptions = regions.flatMap((r) =>
   r.districts.map((d) => ({ label: `${r.name}・${d.name}（${d.id}）`, value: d.id }))
 );
@@ -203,7 +204,13 @@ const config = {
                   widget: 'list',
                   summary: '{{fields.name}}（{{fields.id}}）',
                   fields: [
-                    { name: 'id', label: '代號（英文，建立後不要改）', widget: 'string' },
+                    {
+                      name: 'id',
+                      label: '代號（英文，建立後不要改）',
+                      widget: 'string',
+                      hint: '全站不可重複，建議加縣市前綴，例如 chiayi-east、kaohsiung-sanmin',
+                      pattern: ['^[a-z0-9]+(-[a-z0-9]+)*$', '只能用英文小寫、數字與 -'],
+                    },
                     { name: 'name', label: '名稱', widget: 'string' },
                   ],
                 },
@@ -234,7 +241,7 @@ const config = {
                   required: false,
                   summary: '{{fields.name}}（{{fields.id}}）',
                   fields: [
-                    { name: 'id', label: '代號（英文）', widget: 'string' },
+                    { name: 'id', label: '代號（英文，全站不可重複）', widget: 'string' },
                     { name: 'name', label: '名稱', widget: 'string' },
                   ],
                 },
