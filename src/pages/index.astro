@@ -35,16 +35,29 @@ const topPick = featured[0] ?? null;
 const topPickRegion = topPick ? getRegion(topPick.data.regionId) : null;
 const topPickDistrict = topPickRegion?.districts.find((d) => d.id === topPick?.data.districtId);
 
-// 城市指南：從熱門地區中挑 4 座城市做編輯導語（此為原創文案，非第三方內容）。
+// 城市指南：列出所有縣市（依北→南→東排序），附編輯導語與收錄店家數（導語為原創文案，非第三方內容）。
+// 之後新增的縣市會自動出現；沒有導語的縣市顯示預設文字。
 const cityTaglines: Record<string, string> = {
   taipei: '巷弄麵攤與老派冰室',
-  tainan: '早餐從牛肉湯開始',
+  'new-taipei': '夜市與老街小吃',
+  hsinchu: '米粉貢丸與客家味',
   taichung: '市場小吃一路吃到宵夜',
+  nantou: '山城羊肉與日月潭風味',
+  chiayi: '火雞肉飯的故鄉',
+  tainan: '早餐從牛肉湯開始',
   kaohsiung: '港邊海鮮與鹽埕老味',
+  pingtung: '肉圓豬腳到恆春海味',
+  hualien: '扁食麻糬與山海味',
+  taitung: '縱谷米香與海岸風味',
 };
-const cityGuide = Object.keys(cityTaglines)
-  .map((id) => popularRegions.find((r) => r.id === id))
-  .filter((r): r is NonNullable<typeof r> => Boolean(r));
+const cityOrder = [
+  'keelung', 'taipei', 'new-taipei', 'taoyuan', 'hsinchu', 'miaoli', 'taichung', 'changhua', 'nantou',
+  'yunlin', 'chiayi', 'tainan', 'kaohsiung', 'pingtung', 'yilan', 'hualien', 'taitung', 'penghu', 'kinmen', 'lienchiang',
+];
+const regionCounts = new Map<string, number>();
+for (const r of allRestaurants) regionCounts.set(r.data.regionId, (regionCounts.get(r.data.regionId) ?? 0) + 1);
+const orderOf = (id: string) => (cityOrder.indexOf(id) === -1 ? 999 : cityOrder.indexOf(id));
+const cityGuide = [...regions].sort((a, b) => orderOf(a.id) - orderOf(b.id));
 ---
 <BaseLayout title="首頁">
   <section class="hero">
@@ -218,9 +231,12 @@ const cityGuide = Object.keys(cityTaglines)
     <p class="section-sub">在地編輯挑選的路線，一天吃透一座城</p>
     <div class="city-grid">
       {cityGuide.map((region) => (
-        <a href={`/region/${region.id}`} class="city-card">
+        <a href={`/region/${region.id}`} class={`city-card${regionCounts.get(region.id) ? '' : ' is-empty'}`}>
+          <span class="city-count">
+            {regionCounts.get(region.id) ? `${regionCounts.get(region.id)} 家` : '即將收錄'}
+          </span>
           <span class="city-name">{region.name}</span>
-          <span class="city-desc">{cityTaglines[region.id]}</span>
+          <span class="city-desc">{cityTaglines[region.id] ?? '在地小吃與老店'}</span>
         </a>
       ))}
     </div>
@@ -662,6 +678,20 @@ const cityGuide = Object.keys(cityTaglines)
   .city-card {
     flex-direction: column;
     align-items: flex-start;
+    justify-content: flex-end;
+  }
+  .city-card.is-empty {
+    background: linear-gradient(160deg, #b9a58c, #8c7a66);
+  }
+  .city-count {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    font-size: 12px;
   }
 
   .empty {
