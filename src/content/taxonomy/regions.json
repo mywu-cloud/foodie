@@ -17,8 +17,8 @@
       "name": "新竹",
       "popular": true,
       "districts": [
-        { "id": "east", "name": "東區" },
-        { "id": "north", "name": "北區" }
+        { "id": "hsinchu-east", "name": "東區" },
+        { "id": "hsinchu-north", "name": "北區" }
       ]
     },
     {
@@ -26,7 +26,7 @@
       "name": "台中",
       "popular": true,
       "districts": [
-        { "id": "west", "name": "西區" },
+        { "id": "taichung-west", "name": "西區" },
         { "id": "beitun", "name": "北屯區" },
         { "id": "xitun", "name": "西屯區" }
       ]
@@ -36,8 +36,8 @@
       "name": "嘉義",
       "popular": true,
       "districts": [
-        { "id": "east", "name": "東區" },
-        { "id": "west", "name": "西區" }
+        { "id": "chiayi-east", "name": "東區" },
+        { "id": "chiayi-west", "name": "西區" }
       ]
     },
     {
