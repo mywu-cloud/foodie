@@ -31,6 +31,7 @@ const results = allRestaurants.filter((r) => r.data.categoryId === categoryId);
         districtId={r.data.districtId}
         categoryName={resolveCategory(r.data.categoryId)?.name ?? r.data.categoryId}
         tierId={r.data.tierId}
+        coverImage={r.data.coverImage}
       />
     ))}
     {results.length === 0 && <p>這個分類還沒有收錄餐廳，敬請期待。</p>}

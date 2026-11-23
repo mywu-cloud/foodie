@@ -1,4 +1,5 @@
 {
+  "urlId": "ah-ming-congee",
   "name": "阿明鹹粥",
   "regionId": "kaohsiung",
   "districtId": "yancheng",
@@ -8,7 +9,10 @@
   "phone": "07-1234567",
   "openingHours": "06:00-13:00（週一公休）",
   "priceRange": "$",
-  "tags": ["在地排隊名店", "只收現金"],
+  "tags": [
+    "在地排隊名店",
+    "只收現金"
+  ],
   "description": "在地經營三十年的鹹粥老店，虱目魚肚湯是招牌。",
   "lastReviewedAt": "2026-08-01",
   "editorNote": "多次現場走訪確認品質穩定，且長期為在地口碑首選，列為必吃首選。"
