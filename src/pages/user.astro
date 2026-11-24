@@ -282,6 +282,8 @@ const taxonomy = {
 </script>
 
 <style>
+  /* form／.mode 有設 display，需強制讓 hidden 屬性生效（送出後隱藏表單） */
+  [hidden] { display: none !important; }
   .user-page { max-width: 680px; margin: 0 auto; padding: 32px 24px 64px; }
   h1 { font-size: 28px; margin: 0 0 8px; }
   .lead { color: var(--text-secondary); margin: 0 0 20px; line-height: 1.7; }
