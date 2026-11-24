@@ -320,7 +320,18 @@ export async function onRequestPost({ request, env }) {
     }
     lines.push('', '審查清單：', '- [ ] 資料正確（可對照 Google 地圖）', '- [ ] 照片為投稿者自行拍攝、無他人肖像', '- [ ] 合併後到 `/admin` 評定分級');
 
-    const pr = await gh('POST', '/pulls', { title, head: branch, base: 'main', body: lines.join('\n') });
+    let pr;
+    try {
+      pr = await gh('POST', '/pulls', { title, head: branch, base: 'main', body: lines.join('\n') });
+    } catch (e) {
+      // 開 PR 失敗（例如 token 少了 Pull requests 權限）時，刪掉剛建立的分支，避免留下殘留
+      try {
+        await gh('DELETE', `/git/refs/heads/${branch}`);
+      } catch {
+        /* 刪除失敗就算了 */
+      }
+      throw e;
+    }
     try {
       await gh('POST', `/issues/${pr.number}/labels`, { labels: ['user-submission'] });
     } catch {

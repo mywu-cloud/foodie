@@ -143,6 +143,19 @@ const { title, description = '台灣分區分類分級美食查詢' } = Astro.pr
   }
   .site-header nav a {
     color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  .brand-name {
+    white-space: nowrap;
+  }
+  /* 中等寬度（平板、瀏覽器側邊欄開著時）：隱藏英文副標、縮小間距，避免品牌名與選單換行 */
+  @media (max-width: 1000px) {
+    .brand-kicker {
+      display: none;
+    }
+    .site-header nav {
+      gap: 18px;
+    }
   }
   .site-header nav a:hover {
     color: var(--accent);
