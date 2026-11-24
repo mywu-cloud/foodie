@@ -1,0 +1,26 @@
+{
+  "urlId": "tnn-suage",
+  "name": "Suage 北海道湯咖哩 台南三井店",
+  "regionId": "tainan",
+  "districtId": "tainan-rende",
+  "categoryId": "japanese",
+  "subcategoryId": "",
+  "tierId": "must-eat",
+  "coverImage": "/images/restaurants/20260908_133709.webp",
+  "gallery": [
+    "/images/restaurants/20260908_133514.webp"
+  ],
+  "description": "道地北海道湯咖哩，不用飛日本北海道，台南就吃得到。\n• 點餐方式：可自由搭配主餐、湯底、辣度、飯量與加購配料，部分餐點附白飯與蔬菜。\n• 湯底選擇：常見有招牌原味、椰奶湯底，另有季節或分店限定口味。\n＊辣度 1 -10，可以吃小辣的人，建議辣度選3。",
+  "address": "711臺南市歸仁區武東里歸仁大道101號1樓",
+  "phone": "06 303 2211",
+  "openingHours": "11:00 - 21:30",
+  "priceRange": "$$$",
+  "tags": [
+    "北海道",
+    "湯咖哩"
+  ],
+  "lat": null,
+  "lng": null,
+  "editorNote": "",
+  "lastReviewedAt": "2026-09-08"
+}
