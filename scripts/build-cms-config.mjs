@@ -8,8 +8,9 @@
  * 輸出格式是 JSON（JSON 本身就是合法的 YAML），省去 YAML 套件依賴。
  *
  * 環境變數（選填）：
- *   CMS_AUTH_URL  OAuth 登入用的 Cloudflare Worker 網址（sveltia-cms-auth）。
- *                 沒設定時後台只能用「GitHub Personal Access Token」登入。
+ *   CMS_AUTH_URL  OAuth 登入端點的網址，預設 https://twfood.pages.dev/oauth
+ *                 （同網域的 Pages Functions：functions/oauth/*）。
+ *                 Cloudflare Pages 沒設 GITHUB_CLIENT_ID／SECRET 時，按 GitHub 登入會顯示錯誤，仍可用 Token 登入。
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 
@@ -133,7 +134,7 @@ const config = {
     name: 'github',
     repo: 'mywu-cloud/foodie',
     branch: 'main',
-    ...(process.env.CMS_AUTH_URL ? { base_url: process.env.CMS_AUTH_URL } : {}),
+    base_url: process.env.CMS_AUTH_URL || 'https://twfood.pages.dev/oauth',
     commit_messages: {
       create: 'content: 新增 {{collection}}「{{slug}}」',
       update: 'content: 更新 {{collection}}「{{slug}}」',

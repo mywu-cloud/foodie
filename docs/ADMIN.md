@@ -24,15 +24,20 @@
 
 Token 只存在你的瀏覽器裡。建議設定到期日，到期後重新產生一個即可。
 
-### 登入方式 B：「用 GitHub 登入」按鈕（OAuth，之後要給別的編輯用時再設）
+### 登入方式 B：「Sign In with GitHub」按鈕（推薦，換電腦／手機最方便）
 
-1. 部署 OAuth Worker：照 https://github.com/sveltia/sveltia-cms-auth 的 README 按 **Deploy to Cloudflare Workers**
-2. GitHub → Settings → Developer settings → **OAuth Apps → New OAuth App**
+OAuth 端點已內建在網站裡（`functions/oauth/*`，Cloudflare Pages Functions），不用另外部署 Worker。只需設定一次：
+
+1. GitHub → Settings → Developer settings → **OAuth Apps → New OAuth App**
+   - Application name：`台灣美食通後台`
    - Homepage URL：`https://twfood.pages.dev`
-   - Authorization callback URL：`https://<你的worker>.workers.dev/callback`
-3. 在 Worker 設定環境變數：`GITHUB_CLIENT_ID`、`GITHUB_CLIENT_SECRET`（用 secret）、`ALLOWED_DOMAINS=twfood.pages.dev`
-4. 在 foodie repo → Settings → Secrets and variables → Actions → **Variables** 新增 `CMS_AUTH_URL = https://<你的worker>.workers.dev`
-5. 隨便 push 一次讓網站重新部署，後台就會出現「Sign In with GitHub」
+   - Authorization callback URL：`https://twfood.pages.dev/oauth/callback`
+   - 建立後複製 **Client ID**，再按 **Generate a new client secret** 複製 secret
+2. Cloudflare Dashboard → Workers & Pages → foodie 專案 → Settings → **Variables and Secrets**（Production）
+   - `GITHUB_CLIENT_ID` = Client ID（Text）
+   - `GITHUB_CLIENT_SECRET` = Client secret（**Secret**）
+3. 重新部署一次（GitHub Actions 手動執行「資料同步與部署」即可）
+4. 之後任何裝置打開 https://twfood.pages.dev/admin/ → **Sign In with GitHub** → 用 GitHub 帳號登入（手機上若已登入 GitHub App／網頁，按授權即可）
 
 > 權限由 GitHub 控管：只有對 `mywu-cloud/foodie` 有寫入權限的帳號能存檔。要加編輯，就到 repo → Settings → Collaborators 邀請對方。
 
