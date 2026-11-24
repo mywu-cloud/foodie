@@ -1,0 +1,29 @@
+{
+  "urlId": "khh-teppanyaki",
+  "name": "禾鮨 鐵板燒",
+  "regionId": "kaohsiung",
+  "districtId": "zuoying",
+  "categoryId": "teppanyaki",
+  "subcategoryId": "",
+  "tierId": "must-eat",
+  "coverImage": "/images/restaurants/20260418_173450.webp",
+  "gallery": [
+    "/images/restaurants/20260418_180506.webp",
+    "/images/restaurants/20260418_181810.webp",
+    "/images/restaurants/20260418_182945.webp",
+    "/images/restaurants/20260418_184450.webp",
+    "/images/restaurants/20260418_190146.webp",
+    "/images/restaurants/20260418_191457.webp",
+    "/images/restaurants/20260418_192130.webp"
+  ],
+  "description": "高雄 禾鮨 鐵板燒：使用高檔食材，雙主廚，一次享受日式板前與法式鐵板料理。",
+  "address": "813高雄市左營區新上里明誠二路476號",
+  "phone": "07 550 9357",
+  "openingHours": "12:00–14:00、17:30–19:30、19:40–21:40",
+  "priceRange": "$$$$",
+  "tags": [],
+  "lat": null,
+  "lng": null,
+  "editorNote": "",
+  "lastReviewedAt": "2026-04-18"
+}
