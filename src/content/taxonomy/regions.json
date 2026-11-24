@@ -273,6 +273,105 @@
           "name": "水里鄉"
         }
       ]
+    },
+    {
+      "id": "keelung",
+      "name": "基隆",
+      "popular": false,
+      "districts": [
+        {
+          "id": "keelung-renai",
+          "name": "仁愛區"
+        }
+      ]
+    },
+    {
+      "id": "taoyuan",
+      "name": "桃園",
+      "popular": false,
+      "districts": [
+        {
+          "id": "taoyuan-taoyuan",
+          "name": "桃園區"
+        }
+      ]
+    },
+    {
+      "id": "miaoli",
+      "name": "苗栗",
+      "popular": false,
+      "districts": [
+        {
+          "id": "miaoli-city",
+          "name": "苗栗市"
+        }
+      ]
+    },
+    {
+      "id": "changhua",
+      "name": "彰化",
+      "popular": false,
+      "districts": [
+        {
+          "id": "changhua-city",
+          "name": "彰化市"
+        }
+      ]
+    },
+    {
+      "id": "yunlin",
+      "name": "雲林",
+      "popular": false,
+      "districts": [
+        {
+          "id": "yunlin-douliu",
+          "name": "斗六市"
+        }
+      ]
+    },
+    {
+      "id": "yilan",
+      "name": "宜蘭",
+      "popular": false,
+      "districts": [
+        {
+          "id": "yilan-city",
+          "name": "宜蘭市"
+        }
+      ]
+    },
+    {
+      "id": "penghu",
+      "name": "澎湖",
+      "popular": false,
+      "districts": [
+        {
+          "id": "penghu-magong",
+          "name": "馬公市"
+        }
+      ]
+    },
+    {
+      "id": "kinmen",
+      "name": "金門",
+      "popular": false,
+      "districts": [
+        {
+          "id": "kinmen-jincheng",
+          "name": "金城鎮"
+        }
+      ]
+    },
+    {
+      "id": "lienchiang",
+      "name": "馬祖",
+      "popular": false,
+      "districts": [
+        {
+          "id": "lienchiang-nangan",
+          "name": "南竿鄉"
+        }
+      ]
     }
   ]
 }
