@@ -58,6 +58,8 @@ jobs:
         env:
           # /admin 的 GitHub OAuth 登入 Worker 網址，在 repo Settings → Variables 設定（沒設定時後台用 Token 登入）
           CMS_AUTH_URL: ${{ vars.CMS_AUTH_URL }}
+          # /user 投稿頁的 Cloudflare Turnstile Site key（公開值），沒設定時投稿頁顯示「即將開放」
+          PUBLIC_TURNSTILE_SITEKEY: ${{ vars.TURNSTILE_SITEKEY }}
 
       # cloudflare/pages-action 已下架（2026-09 起 workflow 在 Set up job 就失敗），改用官方 wrangler-action
       - name: 部署到 Cloudflare Pages

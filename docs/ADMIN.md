@@ -5,6 +5,7 @@
 | 方式 | 適合 | 入口 |
 |---|---|---|
 | **/admin 後台** | 日常新增或修改單筆資料、上傳美食照片、新增鄉鎮區與分類 | https://twfood.pages.dev/admin/ |
+| **/user 前台投稿** | 一般訪客（不用註冊） | 只能提議新增或修改；送出後自動開 PR，**admin 審查合併才上線** | https://twfood.pages.dev/user |
 | **試算表自動匯入** | 用 Numbers 整理好的店家清單，整批上傳 | 把 `.numbers` / `.csv` 上傳到 GitHub 的 `data-import/inbox/`（說明見該資料夾的 README） |
 | **CSV 批次匯入（本機）** | 需要在電腦上裝 Node.js | `npm run import -- 檔案.csv` |
 
@@ -61,7 +62,37 @@ Token 只存在你的瀏覽器裡。建議設定到期日，到期後重新產�
 
 ---
 
-## 二、試算表自動匯入（不用安裝任何軟體）
+## 二、/user 前台投稿（訪客免註冊）
+
+### 運作方式
+
+1. 訪客在 `/user` 填表單（新增店家），或從店家頁「建議修改這家店」進來修改；可附最多 6 張照片（瀏覽器端自動縮到 1600px）
+2. 送出時通過 Cloudflare Turnstile「我不是機器人」驗證
+3. `functions/api/submit.js` 用你的 GitHub token 建立 `submission/*` 分支並開 **PR**（標籤 `user-submission`）
+4. 你在 GitHub 審查 → 合併才部署上線；不合格就關閉 PR
+
+訪客碰不到 main、不能刪除任何東西。修改既有店家時只會改「真的有變動」的欄位，**分級、分級理由、網址代號、複核日期都不會被改**；建議分級只寫在 PR 說明裡。待審投稿超過 50 筆時會暫停收件（防灌水）。
+
+### 啟用設定（一次）
+
+1. **Turnstile**：Cloudflare 後台 → Turnstile → Add widget，網域填 `twfood.pages.dev`，取得 **Site key** 與 **Secret key**
+2. **GitHub token**：GitHub → Settings → Developer settings → Fine-grained tokens → Generate
+   - Repository access：Only select repositories → **foodie**
+   - Permissions：**Contents: Read and write**、**Pull requests: Read and write**
+3. **Cloudflare Pages**：twfood 專案 → Settings → Variables and Secrets（Production），新增兩個 **Secret**：
+   - `GITHUB_SUBMIT_TOKEN` = 上一步的 token
+   - `TURNSTILE_SECRET` = Turnstile Secret key
+4. **GitHub repo**：foodie → Settings → Secrets and variables → Actions → **Variables**，新增 `TURNSTILE_SITEKEY` = Turnstile Site key
+5. 隨便 push 一次（或 Actions 手動執行部署），`/user` 就會從「即將開放」變成投稿表單
+
+### 審查投稿
+
+- PR 上的「投稿 / PR 檢查」會自動驗證資料（縣市／鄉鎮區、分類、照片），紅燈就不要合併
+- 建議對照 Google 地圖確認店名、地址、營業時間（見 CLAUDE.md「店家基本資料查證」）
+- 新增鄉鎮區的投稿，PR 說明會標示 ⚠️，確認名稱正確再合併
+- 合併後到 `/admin` 評定分級
+
+## 三、試算表自動匯入（不用安裝任何軟體）
 
 1. GitHub → foodie repo → 打開 `data-import/inbox` 資料夾 → **Add file → Upload files**
 2. 拖入 `.numbers`（或 `.csv`）→ **Commit changes**
@@ -70,7 +101,7 @@ Token 只存在你的瀏覽器裡。建議設定到期日，到期後重新產�
 
 欄位格式、自動分類規則見 `data-import/inbox/README.md`。注意：repo 是公開的，上傳的檔案與報告任何人都看得到。
 
-## 三、CSV 批次匯入（本機）
+## 四、CSV 批次匯入（本機）
 
 1. 用 Excel 或 Google 試算表打開 `data-import/restaurants-template.csv`，一列填一家店，填完**刪除範例列**
 2. 另存為 CSV（Excel 選「CSV UTF-8」最保險；Big5 也能讀）

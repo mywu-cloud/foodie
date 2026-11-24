@@ -6,3 +6,6 @@ dist/
 
 # 由 scripts/build-cms-config.mjs 在 build/dev 時自動產生
 public/admin/config.yml
+
+# wrangler pages dev 本機測試用的 secrets
+.dev.vars

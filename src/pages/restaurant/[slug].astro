@@ -92,6 +92,7 @@ const photoIndex = (src: string) => photos.findIndex((p) => p.src === src);
     )}
 
     <p class="reviewed">最後複核日期：{data.lastReviewedAt}</p>
+    <p class="suggest">資料有誤或想補充照片？<a href={`/user?slug=${slug}`}>建議修改這家店</a></p>
   </article>
 </BaseLayout>
 
@@ -192,5 +193,6 @@ const photoIndex = (src: string) => photos.findIndex((p) => p.src === src);
   .lb-next { right: 16px; top: 50%; transform: translateY(-50%); }
   @media (hover: none) { .lb-prev, .lb-next { display: none; } } /* 觸控裝置用滑動即可 */
 
+  .suggest { font-size: 13px; color: var(--text-muted); margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
   .reviewed { color: #aaa; font-size: 12px; }
 </style>

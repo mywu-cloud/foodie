@@ -1,0 +1,317 @@
+---
+// 一般使用者投稿頁（免登入）：/user 新增店家；/user?slug=xxx 修改既有店家
+// 送出到 /api/submit（functions/api/submit.js）→ 自動開 PR → 編輯審查合併才上線
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { regions, categories, tiers } from '../lib/taxonomy';
+
+const sitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
+const restaurants = (await getCollection('restaurants')).map((r) => ({
+  slug: r.id,
+  name: r.data.name,
+  regionId: r.data.regionId,
+  districtId: r.data.districtId,
+  categoryId: r.data.categoryId,
+  subcategoryId: r.data.subcategoryId ?? '',
+  address: r.data.address,
+  phone: r.data.phone ?? '',
+  openingHours: r.data.openingHours ?? '',
+  priceRange: r.data.priceRange ?? '',
+  description: r.data.description,
+}));
+const taxonomy = {
+  regions: regions.map((r) => ({ id: r.id, name: r.name, districts: r.districts })),
+  categories: categories.map((c) => ({ id: c.id, name: c.name, subcategories: c.subcategories })),
+};
+---
+<BaseLayout title="推薦店家・投稿" description="推薦你喜歡的店家，或幫忙更新店家資訊與照片，編輯審查後上線。">
+  <section class="user-page">
+    {!sitekey ? (
+      <div class="notice">
+        <h1>投稿功能即將開放</h1>
+        <p>我們正在準備投稿系統，開放後就能直接在這裡推薦店家或更新資訊。</p>
+        <a href="/">← 回首頁</a>
+      </div>
+    ) : (
+      <>
+        <h1 id="title">推薦一家店</h1>
+        <p class="lead" id="lead">
+          不用註冊，填好送出就可以。所有投稿都會先經過編輯審查，通過後才會出現在網站上。
+        </p>
+
+        <div class="mode" id="mode-box">
+          <label>想修改網站上已有的店？</label>
+          <input list="shop-list" id="shop-search" placeholder="輸入店名搜尋…" autocomplete="off" />
+          <datalist id="shop-list">
+            {restaurants.map((r) => <option value={r.name} />)}
+          </datalist>
+        </div>
+
+        <form id="form" novalidate>
+          <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+          <label>店名 <b>*</b><input name="name" required maxlength="60" /></label>
+          <div class="row">
+            <label>縣市 <b>*</b><select name="regionId" required></select></label>
+            <label>鄉鎮市區 <b>*</b><select name="districtId" required></select></label>
+          </div>
+          <label id="district-other-box" hidden>
+            鄉鎮市區名稱 <b>*</b>
+            <input name="districtOther" maxlength="10" placeholder="例如：三民區、恆春鎮" />
+          </label>
+          <label>地址 <b>*</b><input name="address" required maxlength="150" placeholder="例如：高雄市鹽埕區五福四路258號" /></label>
+          <div class="row">
+            <label>分類 <b>*</b><select name="categoryId" required></select></label>
+            <label>細分類<select name="subcategoryId"></select></label>
+          </div>
+          <div class="row">
+            <label>電話<input name="phone" maxlength="30" inputmode="tel" /></label>
+            <label>價位
+              <select name="priceRange">
+                <option value="">不確定</option>
+                <option value="$">$（150 以下）</option>
+                <option value="$$">$$（150–400）</option>
+                <option value="$$$">$$$（400–1000）</option>
+                <option value="$$$$">$$$$（1000 以上）</option>
+              </select>
+            </label>
+          </div>
+          <label>營業時間<input name="openingHours" maxlength="150" placeholder="例如：06:00–13:00（週一公休）" /></label>
+          <label>店家介紹／推薦原因 <b id="desc-star">*</b>
+            <textarea name="description" rows="4" maxlength="1000" placeholder="招牌菜、口味、推薦原因…"></textarea>
+          </label>
+          <label>建議分級（最終由編輯評定）
+            <select name="suggestedTier">
+              <option value="">不確定</option>
+              {[...tiers].sort((a, b) => a.order - b.order).filter((t) => t.id !== 'unrated').map((t) => (
+                <option value={t.id}>{t.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <fieldset class="photos">
+            <legend>照片（最多 6 張）</legend>
+            <input type="file" id="photo-input" accept="image/*" multiple />
+            <div class="previews" id="previews"></div>
+            <label class="check"><input type="checkbox" id="photo-confirm" /> 我確認照片都是自己拍攝的（請勿使用網路上他人的照片）</label>
+          </fieldset>
+
+          <label>你的稱呼（選填，會公開顯示在審查頁面）<input name="submitter" maxlength="30" /></label>
+          <label>給編輯的備註（選填）<textarea name="note" rows="2" maxlength="1000"></textarea></label>
+
+          <div class="cf-turnstile" data-sitekey={sitekey} data-language="zh-tw"></div>
+
+          <p class="error" id="error" role="alert" hidden></p>
+          <button type="submit" id="submit">送出投稿</button>
+        </form>
+
+        <div class="done" id="done" hidden>
+          <h2>謝謝你的投稿！</h2>
+          <p id="done-text">編輯審查後就會上線，通常需要幾天。</p>
+          <p><a href="/user">再推薦一家</a>・<a href="/">回首頁</a></p>
+        </div>
+      </>
+    )}
+  </section>
+  <script type="application/json" id="data-taxonomy" set:html={JSON.stringify(taxonomy)} />
+  <script type="application/json" id="data-restaurants" set:html={JSON.stringify(restaurants)} />
+  {sitekey && <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>}
+</BaseLayout>
+
+<script>
+  type Shop = Record<string, string>;
+  const form = document.getElementById('form') as HTMLFormElement | null;
+  if (form) {
+    const tax = JSON.parse(document.getElementById('data-taxonomy')!.textContent!);
+    const shops: Shop[] = JSON.parse(document.getElementById('data-restaurants')!.textContent!);
+    const f = form.elements as unknown as Record<string, HTMLInputElement & HTMLSelectElement & HTMLTextAreaElement>;
+    const errorEl = document.getElementById('error')!;
+    const submitBtn = document.getElementById('submit') as HTMLButtonElement;
+    const otherBox = document.getElementById('district-other-box')!;
+    let editing: Shop | null = null;
+
+    const fill = (sel: HTMLSelectElement, items: { id: string; name: string }[], placeholder: string, extra?: [string, string]) => {
+      sel.innerHTML = '';
+      sel.append(new Option(placeholder, ''));
+      items.forEach((i) => sel.append(new Option(i.name, i.id)));
+      if (extra) sel.append(new Option(extra[1], extra[0]));
+    };
+    fill(f.regionId, tax.regions, '請選擇');
+    fill(f.categoryId, tax.categories, '請選擇');
+    const syncDistricts = () => {
+      const r = tax.regions.find((x: any) => x.id === f.regionId.value);
+      fill(f.districtId, r ? r.districts : [], r ? '請選擇' : '先選縣市', r ? ['__other', '其他（清單沒有）'] : undefined);
+      otherBox.hidden = true;
+    };
+    const syncSubs = () => {
+      const c = tax.categories.find((x: any) => x.id === f.categoryId.value);
+      fill(f.subcategoryId, c ? c.subcategories : [], c?.subcategories.length ? '不指定' : '無');
+    };
+    syncDistricts();
+    syncSubs();
+    f.regionId.addEventListener('change', syncDistricts);
+    f.categoryId.addEventListener('change', syncSubs);
+    f.districtId.addEventListener('change', () => (otherBox.hidden = f.districtId.value !== '__other'));
+
+    // 修改模式：?slug=xxx 或從搜尋框選店
+    const startEdit = (shop: Shop) => {
+      editing = shop;
+      document.getElementById('title')!.textContent = `建議修改：${shop.name}`;
+      document.getElementById('lead')!.textContent = '請直接修改有誤的欄位或補上照片，沒改的欄位會保持原樣。編輯審查後才會上線。';
+      document.getElementById('desc-star')!.hidden = true;
+      f.regionId.value = shop.regionId;
+      syncDistricts();
+      f.categoryId.value = shop.categoryId;
+      syncSubs();
+      for (const k of ['name', 'districtId', 'subcategoryId', 'address', 'phone', 'openingHours', 'priceRange', 'description']) {
+        if (f[k]) f[k].value = shop[k] ?? '';
+      }
+      history.replaceState(null, '', `/user?slug=${shop.slug}`);
+    };
+    const params = new URLSearchParams(location.search);
+    const preset = shops.find((s) => s.slug === params.get('slug'));
+    if (preset) startEdit(preset);
+    const search = document.getElementById('shop-search') as HTMLInputElement;
+    search.addEventListener('change', () => {
+      const shop = shops.find((s) => s.name === search.value.trim());
+      if (shop) startEdit(shop);
+    });
+
+    // 照片：瀏覽器端縮到最長邊 1600px、轉 WebP，減少上傳量
+    let photos: { name: string; data: string; url: string }[] = [];
+    const previews = document.getElementById('previews')!;
+    const renderPreviews = () => {
+      previews.innerHTML = '';
+      photos.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'thumb';
+        div.innerHTML = `<img src="${p.url}" alt=""><button type="button" aria-label="移除">✕</button>`;
+        div.querySelector('button')!.addEventListener('click', () => {
+          photos.splice(i, 1);
+          renderPreviews();
+        });
+        previews.append(div);
+      });
+    };
+    const compress = (file: File) =>
+      new Promise<{ name: string; data: string; url: string }>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, 1600 / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height);
+          let url = canvas.toDataURL('image/webp', 0.82);
+          if (!url.startsWith('data:image/webp')) url = canvas.toDataURL('image/jpeg', 0.85);
+          URL.revokeObjectURL(img.src);
+          resolve({ name: file.name, data: url.split(',')[1], url });
+        };
+        img.onerror = () => reject(new Error('無法讀取照片'));
+        img.src = URL.createObjectURL(file);
+      });
+    const input = document.getElementById('photo-input') as HTMLInputElement;
+    input.addEventListener('change', async () => {
+      const files = Array.from(input.files ?? []).slice(0, 6 - photos.length);
+      for (const file of files) {
+        try {
+          photos.push(await compress(file));
+        } catch {
+          /* 略過無法讀取的檔案 */
+        }
+      }
+      input.value = '';
+      renderPreviews();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.hidden = true;
+      const token = (form.querySelector('[name="cf-turnstile-response"]') as HTMLInputElement | null)?.value;
+      if (!token) {
+        errorEl.textContent = '請先完成「我不是機器人」驗證';
+        errorEl.hidden = false;
+        return;
+      }
+      const confirmed = (document.getElementById('photo-confirm') as HTMLInputElement).checked;
+      if (photos.length && !confirmed) {
+        errorEl.textContent = '請勾選確認照片是自己拍攝的';
+        errorEl.hidden = false;
+        return;
+      }
+      submitBtn.disabled = true;
+      submitBtn.textContent = '送出中…';
+      const data: Record<string, string> = {};
+      for (const k of ['name', 'regionId', 'districtId', 'districtOther', 'address', 'categoryId', 'subcategoryId', 'phone', 'priceRange', 'openingHours', 'description']) {
+        data[k] = f[k]?.value ?? '';
+      }
+      try {
+        const res = await fetch('/api/submit', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            mode: editing ? 'update' : 'create',
+            slug: editing?.slug,
+            data,
+            suggestedTier: f.suggestedTier.value,
+            submitter: f.submitter.value,
+            note: f.note.value,
+            website: f.website.value,
+            photos: photos.map((p) => ({ name: p.name, data: p.data })),
+            photosConfirmed: confirmed,
+            turnstileToken: token,
+          }),
+        });
+        const out = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(out.error || '送出失敗，請稍後再試');
+        form.hidden = true;
+        document.getElementById('mode-box')!.hidden = true;
+        document.getElementById('done')!.hidden = false;
+        if (out.number) document.getElementById('done-text')!.textContent = `投稿編號 #${out.number}，編輯審查後就會上線，通常需要幾天。`;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err) {
+        errorEl.textContent = (err as Error).message;
+        errorEl.hidden = false;
+        (window as any).turnstile?.reset();
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '送出投稿';
+      }
+    });
+  }
+</script>
+
+<style>
+  .user-page { max-width: 680px; margin: 0 auto; padding: 32px 24px 64px; }
+  h1 { font-size: 28px; margin: 0 0 8px; }
+  .lead { color: var(--text-secondary); margin: 0 0 20px; line-height: 1.7; }
+  .notice { text-align: center; padding: 60px 0; }
+  .mode { background: var(--surface-2); border-radius: 14px; padding: 14px 16px; margin-bottom: 22px; display: grid; gap: 8px; font-size: 14px; }
+  form { display: grid; gap: 14px; }
+  label { display: grid; gap: 6px; font-size: 14px; color: var(--text-secondary); }
+  label b { color: var(--accent); font-weight: 400; }
+  input, select, textarea {
+    font: inherit; font-size: 15px; color: var(--text-primary); background: var(--surface-0);
+    border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; min-width: 0;
+  }
+  textarea { resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .photos { border: 1px dashed var(--border-strong); border-radius: 14px; padding: 14px; display: grid; gap: 10px; }
+  .photos legend { font-size: 14px; color: var(--text-secondary); padding: 0 6px; }
+  .previews { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+  .previews :global(.thumb) { position: relative; }
+  .previews :global(.thumb img) { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; display: block; }
+  .previews :global(.thumb button) {
+    position: absolute; top: 4px; right: 4px; border: 0; border-radius: 999px; width: 22px; height: 22px;
+    background: rgba(0, 0, 0, 0.6); color: #fff; cursor: pointer; font-size: 12px;
+  }
+  .check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+  .error { color: #c0392b; background: #fdecea; border-radius: 10px; padding: 10px 12px; margin: 0; font-size: 14px; }
+  button[type='submit'] {
+    background: var(--accent); color: #fff; border: 0; border-radius: 12px; padding: 13px; font-size: 16px; font-weight: 700; cursor: pointer;
+  }
+  button[type='submit']:disabled { opacity: 0.6; cursor: default; }
+  .done { text-align: center; padding: 40px 0; }
+  @media (max-width: 600px) { .row { grid-template-columns: 1fr; } }
+</style>

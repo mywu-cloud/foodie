@@ -14,7 +14,8 @@
     "deploy": "wrangler pages deploy dist"
   },
   "dependencies": {
-    "astro": "^4.15.0"
+    "astro": "^4.15.0",
+    "pinyin-pro": "^3.29.5"
   },
   "devDependencies": {
     "wrangler": "^3.78.0"
