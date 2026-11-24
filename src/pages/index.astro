@@ -56,15 +56,31 @@ const cityTaglines: Record<string, string> = {
   pingtung: '肉圓豬腳到恆春海味',
   hualien: '扁食麻糬與山海味',
   taitung: '縱谷米香與海岸風味',
+  keelung: '廟口夜市與港邊鮮味',
+  taoyuan: '眷村牛肉麵與客家粄條',
+  miaoli: '客家小炒與山城茶香',
+  changhua: '肉圓爌肉飯的老城',
+  yunlin: '古坑咖啡與西螺醬油香',
+  yilan: '三星蔥與蘭陽小吃',
+  penghu: '海島小管與仙人掌冰',
+  kinmen: '廣東粥與高粱香',
+  lienchiang: '魚麵與繼光餅',
 };
-const cityOrder = [
-  'keelung', 'taipei', 'new-taipei', 'taoyuan', 'hsinchu', 'miaoli', 'taichung', 'changhua', 'nantou',
-  'yunlin', 'chiayi', 'tainan', 'kaohsiung', 'pingtung', 'yilan', 'hualien', 'taitung', 'penghu', 'kinmen', 'lienchiang',
+// 依地理區分組（北→中→南→東→離島）；不在清單中的新縣市歸到「其他」。
+const cityAreas: { name: string; ids: string[] }[] = [
+  { name: '北部', ids: ['keelung', 'taipei', 'new-taipei', 'taoyuan', 'hsinchu', 'miaoli'] },
+  { name: '中部', ids: ['taichung', 'changhua', 'nantou', 'yunlin'] },
+  { name: '南部', ids: ['chiayi', 'tainan', 'kaohsiung', 'pingtung'] },
+  { name: '東部', ids: ['yilan', 'hualien', 'taitung'] },
+  { name: '離島', ids: ['penghu', 'kinmen', 'lienchiang'] },
 ];
 const regionCounts = new Map<string, number>();
 for (const r of allRestaurants) regionCounts.set(r.data.regionId, (regionCounts.get(r.data.regionId) ?? 0) + 1);
-const orderOf = (id: string) => (cityOrder.indexOf(id) === -1 ? 999 : cityOrder.indexOf(id));
-const cityGuide = [...regions].sort((a, b) => orderOf(a.id) - orderOf(b.id));
+const knownIds = new Set(cityAreas.flatMap((a) => a.ids));
+const cityGroups = [
+  ...cityAreas.map((a) => ({ name: a.name, regions: a.ids.map((id) => regions.find((r) => r.id === id)).filter((r) => !!r) })),
+  { name: '其他', regions: regions.filter((r) => !knownIds.has(r.id)) },
+].filter((g) => g.regions.length > 0);
 ---
 <BaseLayout title="首頁">
   <section class="hero">
@@ -239,15 +255,25 @@ const cityGuide = [...regions].sort((a, b) => orderOf(a.id) - orderOf(b.id));
   <section id="cities" class="cities">
     <h2>城市指南</h2>
     <p class="section-sub">在地編輯挑選的路線，一天吃透一座城</p>
-    <div class="city-grid">
-      {cityGuide.map((region) => (
-        <a href={`/region/${region.id}`} class={`city-card${regionCounts.get(region.id) ? '' : ' is-empty'}`}>
-          <span class="city-count">
-            {regionCounts.get(region.id) ? `${regionCounts.get(region.id)} 家` : '即將收錄'}
-          </span>
-          <span class="city-name">{region.name}</span>
-          <span class="city-desc">{cityTaglines[region.id] ?? '在地小吃與老店'}</span>
-        </a>
+    <div class="city-areas">
+      {cityGroups.map((group) => (
+        <div class="city-area">
+          <h3 class="city-area-name">{group.name}</h3>
+          <div class="city-grid">
+            {group.regions.map((region) => {
+              const count = regionCounts.get(region!.id) ?? 0;
+              return (
+                <a href={`/region/${region!.id}`} class={`city-card${count ? '' : ' is-empty'}`}>
+                  <span class="city-top">
+                    <span class="city-name">{region!.name}</span>
+                    <span class="city-count">{count ? `${count} 家` : '即將收錄'}</span>
+                  </span>
+                  <span class="city-desc">{cityTaglines[region!.id] ?? '在地小吃與老店'}</span>
+                </a>
+              );
+            })}
+          </div>
+        </div>
       ))}
     </div>
   </section>
@@ -697,52 +723,86 @@ const cityGuide = [...regions].sort((a, b) => orderOf(a.id) - orderOf(b.id));
     font-size: 30px;
     margin: 0 0 8px;
   }
+  .city-areas {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .city-area {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .city-area-name {
+    margin: 0;
+    padding-top: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
   .city-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
-    margin-top: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: 10px;
   }
   .city-card {
-    position: relative;
-    height: 200px;
-    border-radius: 16px;
-    overflow: hidden;
-    background: linear-gradient(160deg, #8a6a45, #4a3624);
     display: flex;
-    align-items: flex-end;
-    padding: 18px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    min-height: 64px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: linear-gradient(150deg, #8a6a45, #4a3624);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .city-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(74, 54, 36, 0.22);
+  }
+  .city-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
   }
   .city-name {
-    display: block;
     font-family: 'Noto Serif TC', serif;
     font-weight: 700;
-    font-size: 20px;
+    font-size: 17px;
     color: #fff;
-  }
-  .city-desc {
-    display: block;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.82);
-    margin-top: 2px;
-  }
-  .city-card {
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-end;
-  }
-  .city-card.is-empty {
-    background: linear-gradient(160deg, #b9a58c, #8c7a66);
   }
   .city-count {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    padding: 3px 10px;
+    flex-shrink: 0;
+    padding: 1px 8px;
     border-radius: 999px;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.3);
     color: #fff;
+    font-size: 11px;
+  }
+  .city-desc {
     font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .city-card.is-empty {
+    background: transparent;
+    border: 1px dashed rgba(138, 106, 69, 0.45);
+  }
+  .city-card.is-empty .city-name {
+    color: var(--text-secondary);
+  }
+  .city-card.is-empty .city-count {
+    background: rgba(138, 106, 69, 0.12);
+    color: var(--text-muted);
+  }
+  .city-card.is-empty .city-desc {
+    color: var(--text-muted);
   }
 
   .empty {
@@ -762,16 +822,20 @@ const cityGuide = [...regions].sort((a, b) => orderOf(a.id) - orderOf(b.id));
     .ranking-grid {
       grid-template-columns: 1fr;
     }
-    .city-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
   }
   @media (max-width: 560px) {
     .feature-grid {
       grid-template-columns: 1fr;
     }
-    .city-grid {
+    .city-area {
       grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .city-area-name {
+      padding-top: 0;
+    }
+    .city-grid {
+      grid-template-columns: repeat(2, 1fr);
     }
     .hero h1 {
       font-size: 38px;
