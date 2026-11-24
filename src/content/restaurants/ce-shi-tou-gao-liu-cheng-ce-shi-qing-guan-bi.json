@@ -1,0 +1,12 @@
+{
+  "urlId": "ce-shi-tou-gao-liu-cheng-ce-shi-qing-guan-bi",
+  "name": "【測試】投稿流程測試（請關閉）",
+  "regionId": "kaohsiung",
+  "districtId": "yancheng",
+  "categoryId": "snacks",
+  "tierId": "unrated",
+  "address": "高雄市鹽埕區測試路1號",
+  "tags": [],
+  "description": "這是投稿功能的測試資料，確認後請關閉這個 PR，不要合併。",
+  "lastReviewedAt": "2026-11-24"
+}
