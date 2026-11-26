@@ -46,6 +46,10 @@ const ranking = allRestaurants
 const topPick = featured[0] ?? null;
 const topPickRegion = topPick ? getRegion(topPick.data.regionId) : null;
 const topPickDistrict = topPickRegion?.districts.find((d) => d.id === topPick?.data.districtId);
+// 精選店家的照片輪播：封面 + 相簿（最多 8 張）；沒有照片時顯示原本的佔位底色
+const topPickPhotos = topPick
+  ? [...new Set([topPick.data.coverImage, ...(topPick.data.gallery ?? []).map((p) => p.src)].filter(Boolean))].slice(0, 8)
+  : [];
 
 // 城市指南：列出所有縣市（依北→南→東排序），附編輯導語與收錄店家數（導語為原創文案，非第三方內容）。
 // 之後新增的縣市會自動出現；沒有導語的縣市顯示預設文字。
@@ -170,17 +174,37 @@ const cityGroups = [
       </form>
     </div>
     <div class="hero-visual">
-      <div class="hero-image" aria-hidden="true">
-        <span>放一張夜市或店內照片</span>
-      </div>
+      {topPickPhotos.length ? (
+        <a class="hero-image hero-slides" href={`/restaurant/${topPick!.id}`} aria-label={`查看本週精選：${topPick!.data.name}`} data-hero-slides>
+          {topPickPhotos.map((src, i) => (
+            <img
+              src={src}
+              alt={`${topPick!.data.name} 照片 ${i + 1}`}
+              class={i === 0 ? 'is-active' : ''}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchpriority={i === 0 ? 'high' : 'auto'}
+              decoding="async"
+            />
+          ))}
+          {topPickPhotos.length > 1 && (
+            <div class="hero-dots" aria-hidden="true">
+              {topPickPhotos.map((_, i) => <span class={i === 0 ? 'is-active' : ''} />)}
+            </div>
+          )}
+        </a>
+      ) : (
+        <div class="hero-image" aria-hidden="true">
+          <span>放一張夜市或店內照片</span>
+        </div>
+      )}
       {topPick && (
-        <div class="hero-callout">
+        <a class="hero-callout" href={`/restaurant/${topPick.id}`}>
           <div class="callout-label">編輯本週精選</div>
           <div class="callout-name">{topPick.data.name}</div>
           <div class="callout-meta">
             {topPickRegion?.name}・{topPickDistrict?.name}{topPick.data.priceRange ? ` ・ ${topPick.data.priceRange}` : ''}
           </div>
-        </div>
+        </a>
       )}
     </div>
   </section>
@@ -285,6 +309,25 @@ const cityGroups = [
 </BaseLayout>
 
 <script>
+  // 本週精選照片輪播：每 4.5 秒淡入下一張；滑鼠移入或分頁在背景時暫停；偏好減少動態效果時不自動播放
+  for (const box of document.querySelectorAll<HTMLElement>('[data-hero-slides]')) {
+    const imgs = [...box.querySelectorAll('img')];
+    const dots = [...box.querySelectorAll('.hero-dots span')];
+    if (imgs.length < 2 || matchMedia('(prefers-reduced-motion: reduce)').matches) continue;
+    let i = 0;
+    let paused = false;
+    box.addEventListener('mouseenter', () => (paused = true));
+    box.addEventListener('mouseleave', () => (paused = false));
+    setInterval(() => {
+      if (paused || document.hidden) return;
+      imgs[i].classList.remove('is-active');
+      dots[i]?.classList.remove('is-active');
+      i = (i + 1) % imgs.length;
+      imgs[i].classList.add('is-active');
+      dots[i]?.classList.add('is-active');
+    }, 4500);
+  }
+
   // 附近推薦：分類篩選 + 「顯示更多」分頁
   const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-row .pill');
   const grid = document.getElementById('feature-grid');
@@ -578,7 +621,51 @@ const cityGroups = [
     color: var(--text-muted);
     font-size: 15px;
   }
+  .hero-slides {
+    display: block;
+    background: var(--surface-2);
+  }
+  .hero-slides img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.9s ease;
+  }
+  .hero-slides img.is-active {
+    opacity: 1;
+  }
+  .hero-dots {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.28);
+  }
+  .hero-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.55);
+    transition: background 0.3s, transform 0.3s;
+  }
+  .hero-dots span.is-active {
+    background: #fff;
+    transform: scale(1.25);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-slides img {
+      transition: none;
+    }
+  }
   .hero-callout {
+    color: inherit;
+    text-decoration: none;
     position: absolute;
     bottom: -24px;
     left: -12px;
