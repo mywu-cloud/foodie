@@ -1,0 +1,25 @@
+{
+  "urlId": "khh-law-shi",
+  "name": "老新台菜 十全店",
+  "regionId": "kaohsiung",
+  "districtId": "kaohsiung-sanmin",
+  "categoryId": "taiwanese",
+  "subcategoryId": "",
+  "tierId": "must-eat",
+  "coverImage": "/images/restaurants/20230820_194527_v.webp",
+  "gallery": [
+    "/images/restaurants/20230820_200905_v.webp",
+    "/images/restaurants/20230820_200909_v.webp",
+    "/images/restaurants/20230820_202334_v.webp"
+  ],
+  "description": "米其林指南推薦，500盤/500甜推薦，CNN推薦高雄必吃臺菜，無菜單料理。",
+  "address": "807高雄市三民區德西里十全三路265號",
+  "phone": "07 3118099",
+  "openingHours": "11:30–14:00、17:30–21:30",
+  "priceRange": "$$$$",
+  "tags": [],
+  "lat": null,
+  "lng": null,
+  "editorNote": "",
+  "lastReviewedAt": "2024-07-28"
+}
