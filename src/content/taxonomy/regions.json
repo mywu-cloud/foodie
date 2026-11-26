@@ -7,20 +7,52 @@
       "popular": true,
       "districts": [
         {
-          "id": "daan",
-          "name": "大安區"
+          "id": "taipei-zhongzheng",
+          "name": "中正區"
         },
         {
-          "id": "xinyi",
-          "name": "信義區"
+          "id": "taipei-datong",
+          "name": "大同區"
         },
         {
           "id": "zhongshan",
           "name": "中山區"
         },
         {
+          "id": "taipei-songshan",
+          "name": "松山區"
+        },
+        {
+          "id": "daan",
+          "name": "大安區"
+        },
+        {
           "id": "wanhua",
           "name": "萬華區"
+        },
+        {
+          "id": "xinyi",
+          "name": "信義區"
+        },
+        {
+          "id": "taipei-shilin",
+          "name": "士林區"
+        },
+        {
+          "id": "taipei-beitou",
+          "name": "北投區"
+        },
+        {
+          "id": "taipei-neihu",
+          "name": "內湖區"
+        },
+        {
+          "id": "taipei-nangang",
+          "name": "南港區"
+        },
+        {
+          "id": "taipei-wenshan",
+          "name": "文山區"
         }
       ]
     },
@@ -36,6 +68,62 @@
         {
           "id": "hsinchu-north",
           "name": "北區"
+        },
+        {
+          "id": "hsinchu-xiangshan",
+          "name": "香山區"
+        },
+        {
+          "id": "hsinchu-zhubei",
+          "name": "竹北市"
+        },
+        {
+          "id": "hsinchu-hukou",
+          "name": "湖口鄉"
+        },
+        {
+          "id": "hsinchu-xinfeng",
+          "name": "新豐鄉"
+        },
+        {
+          "id": "hsinchu-xinpu",
+          "name": "新埔鎮"
+        },
+        {
+          "id": "hsinchu-guanxi",
+          "name": "關西鎮"
+        },
+        {
+          "id": "hsinchu-xionglin",
+          "name": "芎林鄉"
+        },
+        {
+          "id": "hsinchu-baoshan",
+          "name": "寶山鄉"
+        },
+        {
+          "id": "hsinchu-zhudong",
+          "name": "竹東鎮"
+        },
+        {
+          "id": "hsinchu-wufeng",
+          "name": "五峰鄉"
+        },
+        {
+          "id": "hsinchu-hengshan",
+          "name": "橫山鄉"
+        },
+        {
+          "id": "hsinchu-jianshi",
+          "name": "尖石鄉"
+        },
+        {
+          "id": "hsinchu-beipu",
+          "name": "北埔鄉"
+        },
+        {
+          "id": "hsinchu-emei",
+          "name": "峨眉鄉"
         }
       ]
     },
@@ -45,8 +133,24 @@
       "popular": true,
       "districts": [
         {
+          "id": "taichung-zhongqu",
+          "name": "中區"
+        },
+        {
+          "id": "taichung-dongqu",
+          "name": "東區"
+        },
+        {
+          "id": "taichung-nanqu",
+          "name": "南區"
+        },
+        {
           "id": "taichung-west",
           "name": "西區"
+        },
+        {
+          "id": "taichung-beiqu",
+          "name": "北區"
         },
         {
           "id": "beitun",
@@ -55,6 +159,94 @@
         {
           "id": "xitun",
           "name": "西屯區"
+        },
+        {
+          "id": "taichung-nantun",
+          "name": "南屯區"
+        },
+        {
+          "id": "taichung-taiping",
+          "name": "太平區"
+        },
+        {
+          "id": "taichung-dali",
+          "name": "大里區"
+        },
+        {
+          "id": "taichung-wufeng",
+          "name": "霧峰區"
+        },
+        {
+          "id": "taichung-wuri",
+          "name": "烏日區"
+        },
+        {
+          "id": "taichung-fengyuan",
+          "name": "豐原區"
+        },
+        {
+          "id": "taichung-houli",
+          "name": "后里區"
+        },
+        {
+          "id": "taichung-shigang",
+          "name": "石岡區"
+        },
+        {
+          "id": "taichung-dongshi",
+          "name": "東勢區"
+        },
+        {
+          "id": "taichung-heping",
+          "name": "和平區"
+        },
+        {
+          "id": "taichung-xinshe",
+          "name": "新社區"
+        },
+        {
+          "id": "taichung-tanzi",
+          "name": "潭子區"
+        },
+        {
+          "id": "taichung-daya",
+          "name": "大雅區"
+        },
+        {
+          "id": "taichung-shengang",
+          "name": "神岡區"
+        },
+        {
+          "id": "taichung-dadu",
+          "name": "大肚區"
+        },
+        {
+          "id": "taichung-shalu",
+          "name": "沙鹿區"
+        },
+        {
+          "id": "taichung-longjing",
+          "name": "龍井區"
+        },
+        {
+          "id": "taichung-wuqi",
+          "name": "梧棲區"
+        },
+        {
+          "id": "taichung-qingshui",
+          "name": "清水區"
+        },
+        {
+          "id": "taichung-dajia",
+          "name": "大甲區"
+        },
+        {
+          "id": "taichung-waipu",
+          "name": "外埔區"
+        },
+        {
+          "id": "taichung-daan",
+          "name": "大安區"
         }
       ]
     },
@@ -72,12 +264,76 @@
           "name": "西區"
         },
         {
-          "id": "chiayi-minxiong",
-          "name": "民雄鄉"
+          "id": "chiayi-fanlu",
+          "name": "番路鄉"
+        },
+        {
+          "id": "chiayi-meishan",
+          "name": "梅山鄉"
         },
         {
           "id": "chiayi-zhuqi",
           "name": "竹崎鄉"
+        },
+        {
+          "id": "chiayi-alishan",
+          "name": "阿里山鄉"
+        },
+        {
+          "id": "chiayi-zhongpu",
+          "name": "中埔鄉"
+        },
+        {
+          "id": "chiayi-dapu",
+          "name": "大埔鄉"
+        },
+        {
+          "id": "chiayi-shuishang",
+          "name": "水上鄉"
+        },
+        {
+          "id": "chiayi-lucao",
+          "name": "鹿草鄉"
+        },
+        {
+          "id": "chiayi-taibao",
+          "name": "太保市"
+        },
+        {
+          "id": "chiayi-puzi",
+          "name": "朴子市"
+        },
+        {
+          "id": "chiayi-dongshi",
+          "name": "東石鄉"
+        },
+        {
+          "id": "chiayi-liujiao",
+          "name": "六腳鄉"
+        },
+        {
+          "id": "chiayi-xingang",
+          "name": "新港鄉"
+        },
+        {
+          "id": "chiayi-minxiong",
+          "name": "民雄鄉"
+        },
+        {
+          "id": "chiayi-dalin",
+          "name": "大林鎮"
+        },
+        {
+          "id": "chiayi-xikou",
+          "name": "溪口鄉"
+        },
+        {
+          "id": "chiayi-yizhu",
+          "name": "義竹鄉"
+        },
+        {
+          "id": "chiayi-budai",
+          "name": "布袋鎮"
         }
       ]
     },
@@ -91,32 +347,140 @@
           "name": "中西區"
         },
         {
+          "id": "tainan-dongqu",
+          "name": "東區"
+        },
+        {
+          "id": "tainan-nanqu",
+          "name": "南區"
+        },
+        {
+          "id": "tainan-beiqu",
+          "name": "北區"
+        },
+        {
           "id": "anping",
           "name": "安平區"
         },
         {
-          "id": "tainan-rende",
-          "name": "仁德區"
-        },
-        {
-          "id": "tainan-guiren",
-          "name": "歸仁區"
+          "id": "tainan-annan",
+          "name": "安南區"
         },
         {
           "id": "tainan-yongkang",
           "name": "永康區"
         },
         {
-          "id": "tainan-dongqu",
-          "name": "東區"
+          "id": "tainan-guiren",
+          "name": "歸仁區"
+        },
+        {
+          "id": "tainan-xinhua",
+          "name": "新化區"
+        },
+        {
+          "id": "tainan-zuozhen",
+          "name": "左鎮區"
+        },
+        {
+          "id": "tainan-yujing",
+          "name": "玉井區"
+        },
+        {
+          "id": "tainan-nanxi",
+          "name": "楠西區"
+        },
+        {
+          "id": "tainan-nanhua",
+          "name": "南化區"
+        },
+        {
+          "id": "tainan-rende",
+          "name": "仁德區"
+        },
+        {
+          "id": "tainan-guanmiao",
+          "name": "關廟區"
+        },
+        {
+          "id": "tainan-longqi",
+          "name": "龍崎區"
+        },
+        {
+          "id": "tainan-guantian",
+          "name": "官田區"
+        },
+        {
+          "id": "tainan-madou",
+          "name": "麻豆區"
+        },
+        {
+          "id": "tainan-jiali",
+          "name": "佳里區"
+        },
+        {
+          "id": "tainan-xigang",
+          "name": "西港區"
+        },
+        {
+          "id": "tainan-qigu",
+          "name": "七股區"
+        },
+        {
+          "id": "tainan-jiangjun",
+          "name": "將軍區"
+        },
+        {
+          "id": "tainan-xuejia",
+          "name": "學甲區"
         },
         {
           "id": "tainan-beimen",
           "name": "北門區"
         },
         {
+          "id": "tainan-xinying",
+          "name": "新營區"
+        },
+        {
+          "id": "tainan-houbi",
+          "name": "後壁區"
+        },
+        {
+          "id": "tainan-baihe",
+          "name": "白河區"
+        },
+        {
+          "id": "tainan-dongshan",
+          "name": "東山區"
+        },
+        {
+          "id": "tainan-liujia",
+          "name": "六甲區"
+        },
+        {
+          "id": "tainan-xiaying",
+          "name": "下營區"
+        },
+        {
+          "id": "tainan-liuying",
+          "name": "柳營區"
+        },
+        {
+          "id": "tainan-yanshui",
+          "name": "鹽水區"
+        },
+        {
           "id": "tainan-shanhua",
           "name": "善化區"
+        },
+        {
+          "id": "tainan-danei",
+          "name": "大內區"
+        },
+        {
+          "id": "tainan-shanshang",
+          "name": "山上區"
         },
         {
           "id": "tainan-xinshi",
@@ -125,30 +489,6 @@
         {
           "id": "tainan-anding",
           "name": "安定區"
-        },
-        {
-          "id": "tainan-qigu",
-          "name": "七股區"
-        },
-        {
-          "id": "tainan-jiali",
-          "name": "佳里區"
-        },
-        {
-          "id": "tainan-xinying",
-          "name": "新營區"
-        },
-        {
-          "id": "tainan-liuying",
-          "name": "柳營區"
-        },
-        {
-          "id": "tainan-beiqu",
-          "name": "北區"
-        },
-        {
-          "id": "tainan-longqi",
-          "name": "龍崎區"
         }
       ]
     },
@@ -158,52 +498,156 @@
       "popular": true,
       "districts": [
         {
-          "id": "yancheng",
-          "name": "鹽埕區"
-        },
-        {
-          "id": "qianzhen",
-          "name": "前鎮區"
-        },
-        {
-          "id": "lingya",
-          "name": "苓雅區"
-        },
-        {
-          "id": "zuoying",
-          "name": "左營區"
-        },
-        {
           "id": "kaohsiung-xinxing",
           "name": "新興區"
-        },
-        {
-          "id": "kaohsiung-sanmin",
-          "name": "三民區"
-        },
-        {
-          "id": "kaohsiung-renwu",
-          "name": "仁武區"
-        },
-        {
-          "id": "kaohsiung-qiaotou",
-          "name": "橋頭區"
-        },
-        {
-          "id": "kaohsiung-gangshan",
-          "name": "岡山區"
-        },
-        {
-          "id": "kaohsiung-gushan",
-          "name": "鼓山區"
         },
         {
           "id": "kaohsiung-qianjin",
           "name": "前金區"
         },
         {
+          "id": "lingya",
+          "name": "苓雅區"
+        },
+        {
+          "id": "yancheng",
+          "name": "鹽埕區"
+        },
+        {
+          "id": "kaohsiung-gushan",
+          "name": "鼓山區"
+        },
+        {
+          "id": "kaohsiung-qijin",
+          "name": "旗津區"
+        },
+        {
+          "id": "qianzhen",
+          "name": "前鎮區"
+        },
+        {
+          "id": "kaohsiung-sanmin",
+          "name": "三民區"
+        },
+        {
+          "id": "kaohsiung-nanzi",
+          "name": "楠梓區"
+        },
+        {
+          "id": "kaohsiung-xiaogang",
+          "name": "小港區"
+        },
+        {
+          "id": "zuoying",
+          "name": "左營區"
+        },
+        {
+          "id": "kaohsiung-renwu",
+          "name": "仁武區"
+        },
+        {
+          "id": "kaohsiung-dashe",
+          "name": "大社區"
+        },
+        {
+          "id": "kaohsiung-gangshan",
+          "name": "岡山區"
+        },
+        {
+          "id": "kaohsiung-luzhu",
+          "name": "路竹區"
+        },
+        {
+          "id": "kaohsiung-alian",
+          "name": "阿蓮區"
+        },
+        {
+          "id": "kaohsiung-tianliao",
+          "name": "田寮區"
+        },
+        {
+          "id": "kaohsiung-yanchao",
+          "name": "燕巢區"
+        },
+        {
+          "id": "kaohsiung-qiaotou",
+          "name": "橋頭區"
+        },
+        {
+          "id": "kaohsiung-ziguan",
+          "name": "梓官區"
+        },
+        {
+          "id": "kaohsiung-mituo",
+          "name": "彌陀區"
+        },
+        {
+          "id": "kaohsiung-yongan",
+          "name": "永安區"
+        },
+        {
+          "id": "kaohsiung-hunei",
+          "name": "湖內區"
+        },
+        {
           "id": "kaohsiung-fengshan",
           "name": "鳳山區"
+        },
+        {
+          "id": "kaohsiung-daliao",
+          "name": "大寮區"
+        },
+        {
+          "id": "kaohsiung-linyuan",
+          "name": "林園區"
+        },
+        {
+          "id": "kaohsiung-niaosong",
+          "name": "鳥松區"
+        },
+        {
+          "id": "kaohsiung-dashu",
+          "name": "大樹區"
+        },
+        {
+          "id": "kaohsiung-qishan",
+          "name": "旗山區"
+        },
+        {
+          "id": "kaohsiung-meinong",
+          "name": "美濃區"
+        },
+        {
+          "id": "kaohsiung-liugui",
+          "name": "六龜區"
+        },
+        {
+          "id": "kaohsiung-neimen",
+          "name": "內門區"
+        },
+        {
+          "id": "kaohsiung-shanlin",
+          "name": "杉林區"
+        },
+        {
+          "id": "kaohsiung-jiaxian",
+          "name": "甲仙區"
+        },
+        {
+          "id": "kaohsiung-taoyuan",
+          "name": "桃源區"
+        },
+        {
+          "id": "kaohsiung-namaxia",
+          "name": "那瑪夏區"
+        },
+        {
+          "id": "kaohsiung-maolin",
+          "name": "茂林區"
+        },
+        {
+          "id": "kaohsiung-qieding",
+          "name": "茄萣區"
         }
       ]
     },
@@ -215,6 +659,66 @@
         {
           "id": "taitung-city",
           "name": "台東市"
+        },
+        {
+          "id": "taitung-lvdao",
+          "name": "綠島鄉"
+        },
+        {
+          "id": "taitung-lanyu",
+          "name": "蘭嶼鄉"
+        },
+        {
+          "id": "taitung-yanping",
+          "name": "延平鄉"
+        },
+        {
+          "id": "taitung-beinan",
+          "name": "卑南鄉"
+        },
+        {
+          "id": "taitung-luye",
+          "name": "鹿野鄉"
+        },
+        {
+          "id": "taitung-guanshan",
+          "name": "關山鎮"
+        },
+        {
+          "id": "taitung-haiduan",
+          "name": "海端鄉"
+        },
+        {
+          "id": "taitung-chishang",
+          "name": "池上鄉"
+        },
+        {
+          "id": "taitung-donghe",
+          "name": "東河鄉"
+        },
+        {
+          "id": "taitung-chenggong",
+          "name": "成功鎮"
+        },
+        {
+          "id": "taitung-changbin",
+          "name": "長濱鄉"
+        },
+        {
+          "id": "taitung-taimali",
+          "name": "太麻里鄉"
+        },
+        {
+          "id": "taitung-jinfeng",
+          "name": "金峰鄉"
+        },
+        {
+          "id": "taitung-dawu",
+          "name": "大武鄉"
+        },
+        {
+          "id": "taitung-daren",
+          "name": "達仁鄉"
         }
       ]
     },
@@ -226,6 +730,54 @@
         {
           "id": "hualien-city",
           "name": "花蓮市"
+        },
+        {
+          "id": "hualien-xincheng",
+          "name": "新城鄉"
+        },
+        {
+          "id": "hualien-xiulin",
+          "name": "秀林鄉"
+        },
+        {
+          "id": "hualien-jian",
+          "name": "吉安鄉"
+        },
+        {
+          "id": "hualien-shoufeng",
+          "name": "壽豐鄉"
+        },
+        {
+          "id": "hualien-fenglin",
+          "name": "鳳林鎮"
+        },
+        {
+          "id": "hualien-guangfu",
+          "name": "光復鄉"
+        },
+        {
+          "id": "hualien-fengbin",
+          "name": "豐濱鄉"
+        },
+        {
+          "id": "hualien-ruisui",
+          "name": "瑞穗鄉"
+        },
+        {
+          "id": "hualien-wanrong",
+          "name": "萬榮鄉"
+        },
+        {
+          "id": "hualien-yuli",
+          "name": "玉里鎮"
+        },
+        {
+          "id": "hualien-zhuoxi",
+          "name": "卓溪鄉"
+        },
+        {
+          "id": "hualien-fuli",
+          "name": "富里鄉"
         }
       ]
     },
@@ -235,12 +787,120 @@
       "popular": false,
       "districts": [
         {
+          "id": "new-taipei-wanli",
+          "name": "萬里區"
+        },
+        {
+          "id": "new-taipei-jinshan",
+          "name": "金山區"
+        },
+        {
           "id": "banqiao",
           "name": "板橋區"
         },
         {
+          "id": "new-taipei-xizhi",
+          "name": "汐止區"
+        },
+        {
+          "id": "new-taipei-shenkeng",
+          "name": "深坑區"
+        },
+        {
+          "id": "new-taipei-shiding",
+          "name": "石碇區"
+        },
+        {
+          "id": "new-taipei-ruifang",
+          "name": "瑞芳區"
+        },
+        {
+          "id": "new-taipei-pingxi",
+          "name": "平溪區"
+        },
+        {
+          "id": "new-taipei-shuangxi",
+          "name": "雙溪區"
+        },
+        {
+          "id": "new-taipei-gongliao",
+          "name": "貢寮區"
+        },
+        {
+          "id": "new-taipei-xindian",
+          "name": "新店區"
+        },
+        {
+          "id": "new-taipei-pinglin",
+          "name": "坪林區"
+        },
+        {
+          "id": "new-taipei-wulai",
+          "name": "烏來區"
+        },
+        {
+          "id": "new-taipei-yonghe",
+          "name": "永和區"
+        },
+        {
+          "id": "new-taipei-zhonghe",
+          "name": "中和區"
+        },
+        {
+          "id": "new-taipei-tucheng",
+          "name": "土城區"
+        },
+        {
+          "id": "new-taipei-sanxia",
+          "name": "三峽區"
+        },
+        {
+          "id": "new-taipei-shulin",
+          "name": "樹林區"
+        },
+        {
+          "id": "new-taipei-yingge",
+          "name": "鶯歌區"
+        },
+        {
           "id": "sanchong",
           "name": "三重區"
+        },
+        {
+          "id": "new-taipei-xinzhuang",
+          "name": "新莊區"
+        },
+        {
+          "id": "new-taipei-taishan",
+          "name": "泰山區"
+        },
+        {
+          "id": "new-taipei-linkou",
+          "name": "林口區"
+        },
+        {
+          "id": "new-taipei-luzhou",
+          "name": "蘆洲區"
+        },
+        {
+          "id": "new-taipei-wugu",
+          "name": "五股區"
+        },
+        {
+          "id": "new-taipei-bali",
+          "name": "八里區"
+        },
+        {
+          "id": "new-taipei-danshui",
+          "name": "淡水區"
+        },
+        {
+          "id": "new-taipei-sanzhi",
+          "name": "三芝區"
+        },
+        {
+          "id": "new-taipei-shimen",
+          "name": "石門區"
         }
       ]
     },
@@ -254,12 +914,132 @@
           "name": "屏東市"
         },
         {
-          "id": "pingtung-hengchun",
-          "name": "恆春鎮"
+          "id": "pingtung-sandimen",
+          "name": "三地門鄉"
+        },
+        {
+          "id": "pingtung-wutai",
+          "name": "霧台鄉"
+        },
+        {
+          "id": "pingtung-majia",
+          "name": "瑪家鄉"
+        },
+        {
+          "id": "pingtung-jiuru",
+          "name": "九如鄉"
+        },
+        {
+          "id": "pingtung-ligang",
+          "name": "里港鄉"
+        },
+        {
+          "id": "pingtung-gaoshu",
+          "name": "高樹鄉"
+        },
+        {
+          "id": "pingtung-yanpu",
+          "name": "鹽埔鄉"
+        },
+        {
+          "id": "pingtung-changzhi",
+          "name": "長治鄉"
+        },
+        {
+          "id": "pingtung-linluo",
+          "name": "麟洛鄉"
+        },
+        {
+          "id": "pingtung-zhutian",
+          "name": "竹田鄉"
+        },
+        {
+          "id": "pingtung-neipu",
+          "name": "內埔鄉"
+        },
+        {
+          "id": "pingtung-wandan",
+          "name": "萬丹鄉"
+        },
+        {
+          "id": "pingtung-chaozhou",
+          "name": "潮州鎮"
+        },
+        {
+          "id": "pingtung-taiwu",
+          "name": "泰武鄉"
+        },
+        {
+          "id": "pingtung-laiyi",
+          "name": "來義鄉"
         },
         {
           "id": "pingtung-wanluan",
           "name": "萬巒鄉"
+        },
+        {
+          "id": "pingtung-kanding",
+          "name": "崁頂鄉"
+        },
+        {
+          "id": "pingtung-xinpi",
+          "name": "新埤鄉"
+        },
+        {
+          "id": "pingtung-nanzhou",
+          "name": "南州鄉"
+        },
+        {
+          "id": "pingtung-linbian",
+          "name": "林邊鄉"
+        },
+        {
+          "id": "pingtung-donggang",
+          "name": "東港鎮"
+        },
+        {
+          "id": "pingtung-liuqiu",
+          "name": "琉球鄉"
+        },
+        {
+          "id": "pingtung-jiadong",
+          "name": "佳冬鄉"
+        },
+        {
+          "id": "pingtung-xinyuan",
+          "name": "新園鄉"
+        },
+        {
+          "id": "pingtung-fangliao",
+          "name": "枋寮鄉"
+        },
+        {
+          "id": "pingtung-fangshan",
+          "name": "枋山鄉"
+        },
+        {
+          "id": "pingtung-chunri",
+          "name": "春日鄉"
+        },
+        {
+          "id": "pingtung-shizi",
+          "name": "獅子鄉"
+        },
+        {
+          "id": "pingtung-jucheng",
+          "name": "車城鄉"
+        },
+        {
+          "id": "pingtung-mudan",
+          "name": "牡丹鄉"
+        },
+        {
+          "id": "pingtung-hengchun",
+          "name": "恆春鎮"
+        },
+        {
+          "id": "pingtung-manzhou",
+          "name": "滿州鄉"
         }
       ]
     },
@@ -269,12 +1049,56 @@
       "popular": false,
       "districts": [
         {
-          "id": "nantou-yuchi",
-          "name": "魚池鄉"
+          "id": "nantou-nantou",
+          "name": "南投市"
+        },
+        {
+          "id": "nantou-zhongliao",
+          "name": "中寮鄉"
+        },
+        {
+          "id": "nantou-caotun",
+          "name": "草屯鎮"
+        },
+        {
+          "id": "nantou-guoxing",
+          "name": "國姓鄉"
+        },
+        {
+          "id": "nantou-puli",
+          "name": "埔里鎮"
+        },
+        {
+          "id": "nantou-renai",
+          "name": "仁愛鄉"
+        },
+        {
+          "id": "nantou-mingjian",
+          "name": "名間鄉"
+        },
+        {
+          "id": "nantou-jiji",
+          "name": "集集鎮"
         },
         {
           "id": "nantou-shuili",
           "name": "水里鄉"
+        },
+        {
+          "id": "nantou-yuchi",
+          "name": "魚池鄉"
+        },
+        {
+          "id": "nantou-xinyi",
+          "name": "信義鄉"
+        },
+        {
+          "id": "nantou-zhushan",
+          "name": "竹山鎮"
+        },
+        {
+          "id": "nantou-lugu",
+          "name": "鹿谷鄉"
         }
       ]
     },
@@ -286,6 +1110,30 @@
         {
           "id": "keelung-renai",
           "name": "仁愛區"
+        },
+        {
+          "id": "keelung-xinyi",
+          "name": "信義區"
+        },
+        {
+          "id": "keelung-zhongzheng",
+          "name": "中正區"
+        },
+        {
+          "id": "keelung-zhongshan",
+          "name": "中山區"
+        },
+        {
+          "id": "keelung-anle",
+          "name": "安樂區"
+        },
+        {
+          "id": "keelung-nuannuan",
+          "name": "暖暖區"
+        },
+        {
+          "id": "keelung-qidu",
+          "name": "七堵區"
         }
       ]
     },
@@ -295,8 +1143,56 @@
       "popular": false,
       "districts": [
         {
+          "id": "taoyuan-zhongli",
+          "name": "中壢區"
+        },
+        {
+          "id": "taoyuan-pingzhen",
+          "name": "平鎮區"
+        },
+        {
+          "id": "taoyuan-longtan",
+          "name": "龍潭區"
+        },
+        {
+          "id": "taoyuan-yangmei",
+          "name": "楊梅區"
+        },
+        {
+          "id": "taoyuan-xinwu",
+          "name": "新屋區"
+        },
+        {
+          "id": "taoyuan-guanyin",
+          "name": "觀音區"
+        },
+        {
           "id": "taoyuan-taoyuan",
           "name": "桃園區"
+        },
+        {
+          "id": "taoyuan-guishan",
+          "name": "龜山區"
+        },
+        {
+          "id": "taoyuan-bade",
+          "name": "八德區"
+        },
+        {
+          "id": "taoyuan-daxi",
+          "name": "大溪區"
+        },
+        {
+          "id": "taoyuan-fuxing",
+          "name": "復興區"
+        },
+        {
+          "id": "taoyuan-dayuan",
+          "name": "大園區"
+        },
+        {
+          "id": "taoyuan-luzhu",
+          "name": "蘆竹區"
         }
       ]
     },
@@ -306,8 +1202,76 @@
       "popular": false,
       "districts": [
         {
+          "id": "miaoli-zhunan",
+          "name": "竹南鎮"
+        },
+        {
+          "id": "miaoli-toufen",
+          "name": "頭份市"
+        },
+        {
+          "id": "miaoli-sanwan",
+          "name": "三灣鄉"
+        },
+        {
+          "id": "miaoli-nanzhuang",
+          "name": "南庄鄉"
+        },
+        {
+          "id": "miaoli-shitan",
+          "name": "獅潭鄉"
+        },
+        {
+          "id": "miaoli-houlong",
+          "name": "後龍鎮"
+        },
+        {
+          "id": "miaoli-tongxiao",
+          "name": "通霄鎮"
+        },
+        {
+          "id": "miaoli-yuanli",
+          "name": "苑裡鎮"
+        },
+        {
           "id": "miaoli-city",
           "name": "苗栗市"
+        },
+        {
+          "id": "miaoli-zaoqiao",
+          "name": "造橋鄉"
+        },
+        {
+          "id": "miaoli-touwu",
+          "name": "頭屋鄉"
+        },
+        {
+          "id": "miaoli-gongguan",
+          "name": "公館鄉"
+        },
+        {
+          "id": "miaoli-dahu",
+          "name": "大湖鄉"
+        },
+        {
+          "id": "miaoli-taian",
+          "name": "泰安鄉"
+        },
+        {
+          "id": "miaoli-tongluo",
+          "name": "銅鑼鄉"
+        },
+        {
+          "id": "miaoli-sanyi",
+          "name": "三義鄉"
+        },
+        {
+          "id": "miaoli-xihu",
+          "name": "西湖鄉"
+        },
+        {
+          "id": "miaoli-zhuolan",
+          "name": "卓蘭鎮"
         }
       ]
     },
@@ -319,6 +1283,106 @@
         {
           "id": "changhua-city",
           "name": "彰化市"
+        },
+        {
+          "id": "changhua-fenyuan",
+          "name": "芬園鄉"
+        },
+        {
+          "id": "changhua-huatan",
+          "name": "花壇鄉"
+        },
+        {
+          "id": "changhua-xiushui",
+          "name": "秀水鄉"
+        },
+        {
+          "id": "changhua-lugang",
+          "name": "鹿港鎮"
+        },
+        {
+          "id": "changhua-fuxing",
+          "name": "福興鄉"
+        },
+        {
+          "id": "changhua-xianxi",
+          "name": "線西鄉"
+        },
+        {
+          "id": "changhua-hemei",
+          "name": "和美鎮"
+        },
+        {
+          "id": "changhua-shengang",
+          "name": "伸港鄉"
+        },
+        {
+          "id": "changhua-yuanlin",
+          "name": "員林市"
+        },
+        {
+          "id": "changhua-shetou",
+          "name": "社頭鄉"
+        },
+        {
+          "id": "changhua-yongjing",
+          "name": "永靖鄉"
+        },
+        {
+          "id": "changhua-puxin",
+          "name": "埔心鄉"
+        },
+        {
+          "id": "changhua-xihu",
+          "name": "溪湖鎮"
+        },
+        {
+          "id": "changhua-dacun",
+          "name": "大村鄉"
+        },
+        {
+          "id": "changhua-puyan",
+          "name": "埔鹽鄉"
+        },
+        {
+          "id": "changhua-tianzhong",
+          "name": "田中鎮"
+        },
+        {
+          "id": "changhua-beidou",
+          "name": "北斗鎮"
+        },
+        {
+          "id": "changhua-tianwei",
+          "name": "田尾鄉"
+        },
+        {
+          "id": "changhua-pitou",
+          "name": "埤頭鄉"
+        },
+        {
+          "id": "changhua-xizhou",
+          "name": "溪州鄉"
+        },
+        {
+          "id": "changhua-zhutang",
+          "name": "竹塘鄉"
+        },
+        {
+          "id": "changhua-erlin",
+          "name": "二林鎮"
+        },
+        {
+          "id": "changhua-daicheng",
+          "name": "大城鄉"
+        },
+        {
+          "id": "changhua-fangyuan",
+          "name": "芳苑鄉"
+        },
+        {
+          "id": "changhua-ershui",
+          "name": "二水鄉"
         }
       ]
     },
@@ -328,8 +1392,84 @@
       "popular": false,
       "districts": [
         {
+          "id": "yunlin-dounan",
+          "name": "斗南鎮"
+        },
+        {
+          "id": "yunlin-dapi",
+          "name": "大埤鄉"
+        },
+        {
+          "id": "yunlin-huwei",
+          "name": "虎尾鎮"
+        },
+        {
+          "id": "yunlin-tuku",
+          "name": "土庫鎮"
+        },
+        {
+          "id": "yunlin-baozhong",
+          "name": "褒忠鄉"
+        },
+        {
+          "id": "yunlin-dongshi",
+          "name": "東勢鄉"
+        },
+        {
+          "id": "yunlin-taixi",
+          "name": "台西鄉"
+        },
+        {
+          "id": "yunlin-lunbei",
+          "name": "崙背鄉"
+        },
+        {
+          "id": "yunlin-mailiao",
+          "name": "麥寮鄉"
+        },
+        {
           "id": "yunlin-douliu",
           "name": "斗六市"
+        },
+        {
+          "id": "yunlin-linnei",
+          "name": "林內鄉"
+        },
+        {
+          "id": "yunlin-gukeng",
+          "name": "古坑鄉"
+        },
+        {
+          "id": "yunlin-citong",
+          "name": "莿桐鄉"
+        },
+        {
+          "id": "yunlin-xiluo",
+          "name": "西螺鎮"
+        },
+        {
+          "id": "yunlin-erlun",
+          "name": "二崙鄉"
+        },
+        {
+          "id": "yunlin-beigang",
+          "name": "北港鎮"
+        },
+        {
+          "id": "yunlin-shuilin",
+          "name": "水林鄉"
+        },
+        {
+          "id": "yunlin-kouhu",
+          "name": "口湖鄉"
+        },
+        {
+          "id": "yunlin-sihu",
+          "name": "四湖鄉"
+        },
+        {
+          "id": "yunlin-yuanchang",
+          "name": "元長鄉"
         }
       ]
     },
@@ -341,6 +1481,50 @@
         {
           "id": "yilan-city",
           "name": "宜蘭市"
+        },
+        {
+          "id": "yilan-toucheng",
+          "name": "頭城鎮"
+        },
+        {
+          "id": "yilan-jiaoxi",
+          "name": "礁溪鄉"
+        },
+        {
+          "id": "yilan-zhuangwei",
+          "name": "壯圍鄉"
+        },
+        {
+          "id": "yilan-yuanshan",
+          "name": "員山鄉"
+        },
+        {
+          "id": "yilan-luodong",
+          "name": "羅東鎮"
+        },
+        {
+          "id": "yilan-sanxing",
+          "name": "三星鄉"
+        },
+        {
+          "id": "yilan-datong",
+          "name": "大同鄉"
+        },
+        {
+          "id": "yilan-wujie",
+          "name": "五結鄉"
+        },
+        {
+          "id": "yilan-dongshan",
+          "name": "冬山鄉"
+        },
+        {
+          "id": "yilan-suao",
+          "name": "蘇澳鎮"
+        },
+        {
+          "id": "yilan-nanao",
+          "name": "南澳鄉"
         }
       ]
     },
@@ -352,6 +1536,26 @@
         {
           "id": "penghu-magong",
           "name": "馬公市"
+        },
+        {
+          "id": "penghu-xiyu",
+          "name": "西嶼鄉"
+        },
+        {
+          "id": "penghu-wangan",
+          "name": "望安鄉"
+        },
+        {
+          "id": "penghu-qimei",
+          "name": "七美鄉"
+        },
+        {
+          "id": "penghu-baisha",
+          "name": "白沙鄉"
+        },
+        {
+          "id": "penghu-huxi",
+          "name": "湖西鄉"
         }
       ]
     },
@@ -361,8 +1565,28 @@
       "popular": false,
       "districts": [
         {
+          "id": "kinmen-jinsha",
+          "name": "金沙鎮"
+        },
+        {
+          "id": "kinmen-jinhu",
+          "name": "金湖鎮"
+        },
+        {
+          "id": "kinmen-jinning",
+          "name": "金寧鄉"
+        },
+        {
           "id": "kinmen-jincheng",
           "name": "金城鎮"
+        },
+        {
+          "id": "kinmen-lieyu",
+          "name": "烈嶼鄉"
+        },
+        {
+          "id": "kinmen-wuqiu",
+          "name": "烏坵鄉"
         }
       ]
     },
@@ -374,6 +1598,18 @@
         {
           "id": "lienchiang-nangan",
           "name": "南竿鄉"
+        },
+        {
+          "id": "lienchiang-beigan",
+          "name": "北竿鄉"
+        },
+        {
+          "id": "lienchiang-juguang",
+          "name": "莒光鄉"
+        },
+        {
+          "id": "lienchiang-dongyin",
+          "name": "東引鄉"
         }
       ]
     }

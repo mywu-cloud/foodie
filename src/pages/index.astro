@@ -6,6 +6,11 @@ import TierBadge from '../components/TierBadge.astro';
 import { popularRegions, homeCategories, categories, regions, getCategory, getRegion, tiers } from '../lib/taxonomy';
 
 const allRestaurants = await getCollection('restaurants');
+// 地點下拉只列出有店家的縣市／鄉鎮區（regions.json 收錄全台 368 個鄉鎮市區，沒有店的不顯示）
+const usedDistricts = new Set(allRestaurants.map((r) => r.data.districtId));
+const locationRegions = regions
+  .map((r) => ({ ...r, districts: r.districts.filter((d) => usedDistricts.has(d.id)) }))
+  .filter((r) => r.districts.length);
 const totalCount = allRestaurants.length;
 
 const tierOrder = (tierId: string) => tiers.find((t) => t.id === tierId)?.order ?? 99;
@@ -98,7 +103,7 @@ const cityGroups = [
             <span class="value" data-summary>全台</span>
           </button>
           <div class="dropdown-panel" role="listbox" aria-label="選擇地區" hidden>
-            {regions.map((r) => (
+            {locationRegions.map((r) => (
               <div class="dropdown-group">
                 <label class="group-label">
                   <input type="checkbox" class="parent-checkbox" data-parent={r.id} />

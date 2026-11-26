@@ -30,6 +30,7 @@ const searchText = (r: (typeof all)[number]) => {
     .toLowerCase();
 };
 const usedRegions = new Set(all.map((r) => r.data.regionId));
+const usedDistricts = new Set(all.map((r) => r.data.districtId)); // 只列出有店家的鄉鎮區
 const usedCategories = new Set(all.map((r) => r.data.categoryId));
 ---
 <BaseLayout title="搜尋店家" description="依地區、分類、分級或店名搜尋台灣美食店家">
@@ -45,7 +46,7 @@ const usedCategories = new Set(all.map((r) => r.data.categoryId));
       <select name="district" id="f-district" aria-label="鄉鎮區">
         <option value="">全部鄉鎮區</option>
         {regions.map((r) =>
-          r.districts.map((d) => (
+          r.districts.filter((d) => usedDistricts.has(d.id)).map((d) => (
             <option value={`${r.id}:${d.id}`} data-region={r.id}>{d.name}</option>
           ))
         )}
