@@ -1,6 +1,6 @@
 ---
 // 一般使用者投稿頁（免登入）：/user 新增店家；/user?slug=xxx 修改既有店家
-// 送出到 /api/submit（functions/api/submit.js）→ 自動開 PR → 編輯審查合併才上線
+// 送出到 /api/submit（functions/api/submit.js）→ 存進 submissions/ 收件匣 → 編輯在 /admin「投稿審核」核准才上線
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { regions, categories, tiers } from '../lib/taxonomy';
@@ -96,7 +96,7 @@ const taxonomy = {
             <label class="check"><input type="checkbox" id="photo-confirm" /> 我確認照片都是自己拍攝的（請勿使用網路上他人的照片）</label>
           </fieldset>
 
-          <label>你的稱呼（選填，會公開顯示在審查頁面）<input name="submitter" maxlength="30" /></label>
+          <label>你的稱呼（選填，會公開記錄在投稿資料裡）<input name="submitter" maxlength="30" /></label>
           <label>給編輯的備註（選填）<textarea name="note" rows="2" maxlength="1000"></textarea></label>
 
           <div class="cf-turnstile" data-sitekey={sitekey} data-language="zh-tw"></div>
@@ -267,7 +267,7 @@ const taxonomy = {
         form.hidden = true;
         document.getElementById('mode-box')!.hidden = true;
         document.getElementById('done')!.hidden = false;
-        if (out.number) document.getElementById('done-text')!.textContent = `投稿編號 #${out.number}，編輯審查後就會上線，通常需要幾天。`;
+        if (out.id) document.getElementById('done-text')!.textContent = `投稿編號 ${out.id}，編輯審查後就會上線，通常需要幾天。`;
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } catch (err) {
         errorEl.textContent = (err as Error).message;

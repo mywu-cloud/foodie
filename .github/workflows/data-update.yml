@@ -6,6 +6,9 @@ on:
   workflow_dispatch: {}
   push:
     branches: [main]
+    # 投稿收件匣（submissions/）的變動不用部署：新投稿、後台改審核狀態都只動這個資料夾。
+    # 核准後由「投稿審核」workflow 寫入店家資料並主動觸發部署。
+    paths-ignore: ['submissions/**']
 
 # 不設定 workflow 層級的 concurrency：先前用 cancel-in-progress: false 時，
 # 只要有一個 run 卡在 queued（GitHub 端偶發問題），後面所有 run 都會排在它後面永遠不會開始。

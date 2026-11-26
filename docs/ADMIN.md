@@ -5,7 +5,7 @@
 | 方式 | 適合 | 入口 |
 |---|---|---|
 | **/admin 後台** | 日常新增或修改單筆資料、上傳美食照片、新增鄉鎮區與分類 | https://twfood.pages.dev/admin/ |
-| **/user 前台投稿** | 一般訪客（不用註冊） | 只能提議新增或修改；送出後自動開 PR，**admin 審查合併才上線** | https://twfood.pages.dev/user |
+| **/user 前台投稿** | 一般訪客（不用註冊）只能提議新增或修改；送出後進「投稿審核」收件匣，**admin 在後台核准才上線** | https://twfood.pages.dev/user |
 | **試算表自動匯入** | 用 Numbers 整理好的店家清單，整批上傳 | 把 `.numbers` / `.csv` 上傳到 GitHub 的 `data-import/inbox/`（說明見該資料夾的 README） |
 | **CSV 批次匯入（本機）** | 需要在電腦上裝 Node.js | `npm run import -- 檔案.csv` |
 
@@ -73,29 +73,36 @@ OAuth 端點已內建在網站裡（`functions/oauth/*`，Cloudflare Pages Funct
 
 1. 訪客在 `/user` 填表單（新增店家），或從店家頁「建議修改這家店」進來修改；可附最多 6 張照片（瀏覽器端自動縮到 1600px）
 2. 送出時通過 Cloudflare Turnstile「我不是機器人」驗證
-3. `functions/api/submit.js` 用你的 GitHub token 建立 `submission/*` 分支並開 **PR**（標籤 `user-submission`）
-4. 你在 GitHub 審查 → 合併才部署上線；不合格就關閉 PR
+3. `functions/api/submit.js` 把投稿存成 `submissions/<編號>.json`、照片存到 `submissions/photos/`，直接 commit 到 main。**這個資料夾不會部署上線、也不會觸發部署**
+4. 你在 `/admin` →「投稿審核」把狀態改成核准或退件 → 存檔，自動處理（見下方「審查投稿」）
 
-訪客碰不到 main、不能刪除任何東西。修改既有店家時只會改「真的有變動」的欄位，**分級、分級理由、網址代號、複核日期都不會被改**；建議分級只寫在 PR 說明裡。待審投稿超過 50 筆時會暫停收件（防灌水）。
+訪客碰不到 `src/content` 與 `public/`、不能刪除任何東西。修改既有店家時只會改「真的有變動」的欄位，網址代號不會被改；投稿者的建議分級只當參考顯示，不寫入資料。新的鄉鎮區要等核准時才加進地區設定。收件匣超過 50 筆待審時會暫停收件（防灌水）。
 
 ### 啟用設定（一次）
 
 1. **Turnstile**：Cloudflare 後台 → Turnstile → Add widget，網域填 `twfood.pages.dev`，取得 **Site key** 與 **Secret key**
 2. **GitHub token**：GitHub → Settings → Developer settings → Fine-grained tokens → Generate
    - Repository access：Only select repositories → **foodie**
-   - Permissions：**Contents: Read and write**、**Pull requests: Read and write**
+   - Permissions：**Contents: Read and write**（已不需要 Pull requests 權限）
 3. **Cloudflare Pages**：twfood 專案 → Settings → Variables and Secrets（Production），新增兩個 **Secret**：
    - `GITHUB_SUBMIT_TOKEN` = 上一步的 token
    - `TURNSTILE_SECRET` = Turnstile Secret key
 4. **GitHub repo**：foodie → Settings → Secrets and variables → Actions → **Variables**，新增 `TURNSTILE_SITEKEY` = Turnstile Site key
 5. 隨便 push 一次（或 Actions 手動執行部署），`/user` 就會從「即將開放」變成投稿表單
 
-### 審查投稿
+### 審查投稿（在後台勾選即可，不用 PR）
 
-- PR 上的「投稿 / PR 檢查」會自動驗證資料（縣市／鄉鎮區、分類、照片），紅燈就不要合併
-- 建議對照 Google 地圖確認店名、地址、營業時間（見 CLAUDE.md「店家基本資料查證」）
-- 新增鄉鎮區的投稿，PR 說明會標示 ⚠️，確認名稱正確再合併
-- 合併後到 `/admin` 評定分級
+1. 打開 https://twfood.pages.dev/admin/ → 左側 **投稿審核**（上方篩選選「⏳ 待審核」）
+2. 點進一筆投稿，看「投稿摘要」：新增或修改哪家店、改了哪些欄位、是否有 ⚠️ 新增鄉鎮區、照片張數
+3. 對照 Google 地圖確認店名、地址、營業時間（見 CLAUDE.md「店家基本資料查證」）；有錯直接在表單上改。也可以順便**評定分級**、填分級理由；不適合的照片直接移除
+4. **審核狀態** 改成：
+   - **✅ 核准上線** → 存檔。約 2–3 分鐘後自動寫入店家資料、照片搬到網站、部署上線，這筆投稿從清單消失
+   - **❌ 退件** → 存檔。投稿與照片一起刪除
+5. 如果核准後這筆又回到「待審核」，代表資料驗證沒過（例如鄉鎮區代號不對），原因寫在最上面的「⚠️ 上次核准失敗的原因」，修正後再核准一次即可
+
+處理紀錄在 GitHub → Actions →「投稿審核」每次執行的 Summary。
+
+> 舊的 `submission/*` PR 還開著的話，照以前的方式在 GitHub 合併或關閉即可；新投稿都會進後台收件匣。
 
 ## 三、試算表自動匯入（不用安裝任何軟體）
 

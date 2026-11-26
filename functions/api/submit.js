@@ -1,24 +1,29 @@
 /**
- * POST /api/submit —— 一般使用者投稿（免登入）→ 自動對 repo 開 Pull Request，由編輯審查合併才上線
+ * POST /api/submit —— 一般使用者投稿（免登入）→ 存進 repo 的 submissions/ 收件匣，由編輯在 /admin「投稿審核」核准才上線
+ *
+ * 流程：投稿 → submissions/<id>.json（+ submissions/photos/）直接 commit 到 main（不觸發部署）
+ *      → 編輯在 /admin 把「審核狀態」改成「核准上線」或「退件」並存檔
+ *      → .github/workflows/apply-submissions.yml 執行 scripts/apply-submissions.mjs 寫入店家資料並部署
  *
  * Cloudflare Pages Function（跟網站同網域，部署時 wrangler 會一起打包 functions/ 目錄）。
  *
  * 需要在 Cloudflare Pages 專案 → Settings → Variables and Secrets 設定：
  *   GITHUB_SUBMIT_TOKEN  （Secret）Fine-grained token，只授權 mywu-cloud/foodie，
- *                        權限 Contents: Read and write、Pull requests: Read and write
+ *                        權限 Contents: Read and write（不再需要 Pull requests 權限）
  *   TURNSTILE_SECRET     （Secret）Cloudflare Turnstile 的 Secret key
  * 選填：
  *   GITHUB_REPO          預設 mywu-cloud/foodie
- *   MAX_OPEN_SUBMISSIONS 尚未審查的投稿 PR 上限，預設 50（超過就暫停收件，防灌水）
+ *   MAX_OPEN_SUBMISSIONS 收件匣待審投稿上限，預設 50（超過就暫停收件，防灌水）
  *   GITHUB_API           預設 https://api.github.com（測試時可指向模擬伺服器）
  *   TURNSTILE_VERIFY_URL 預設 Cloudflare 官方驗證網址（測試用）
  *
  * 安全設計：
- *   - 投稿者完全碰不到 main：只會建立 submission/* 分支 + PR；不能刪除任何東西
+ *   - 投稿只會寫入 submissions/ 資料夾，碰不到 src/content 與 public/；不能刪除任何東西
  *   - 只接受固定欄位、長度上限；縣市／分類必須存在於 taxonomy
- *   - 修改既有店家時只套用「真的有改」的欄位；tierId、editorNote、urlId、lastReviewedAt 一律不動
- *   - 建議分級只寫在 PR 說明，不寫入 tierId（分級由編輯決定，見 CLAUDE.md）
- *   - Turnstile 驗證 + 蜜罐欄位 + 同網域檢查 + 待審 PR 數量上限
+ *   - 修改既有店家時只套用「真的有改」的欄位（含編輯在後台調整的分級）；urlId 不動
+ *   - 建議分級只當參考顯示在審核頁，不寫入 tierId（分級由編輯決定，見 CLAUDE.md）
+ *   - 新鄉鎮區不直接寫入 regions.json，核准時才加入
+ *   - Turnstile 驗證 + 蜜罐欄位 + 同網域檢查 + 待審投稿數量上限
  */
 import { pinyin } from 'pinyin-pro';
 import regionsSeed from '../../src/content/taxonomy/regions.json';
@@ -193,151 +198,122 @@ export async function onRequestPost({ request, env }) {
   try {
     // 待審投稿太多時暫停收件（防灌水）
     const max = Number(env.MAX_OPEN_SUBMISSIONS || 50);
-    const open = await gh('GET', '/pulls?state=open&per_page=100');
-    if (open.filter((pr) => pr.head?.ref?.startsWith('submission/')).length >= max) {
+    let pending = [];
+    try {
+      pending = (await gh('GET', '/contents/submissions?ref=main')).filter((f) => f.name.endsWith('.json'));
+    } catch (e) {
+      if (e.status !== 404) throw e; // 資料夾還不存在 = 0 筆
+    }
+    if (pending.length >= max) {
       return json(429, { error: '目前待審查的投稿較多，請過幾天再試，謝謝！' });
     }
 
     const mainRef = await gh('GET', '/git/ref/heads/main');
     const baseSha = mainRef.object.sha;
-    const baseCommit = await gh('GET', `/git/commits/${baseSha}`);
 
-    // ---------- 組成店家資料 ----------
-    let slug, record, before = null;
+    // ---------- 組成投稿資料 ----------
+    const EDITABLE = ['name', 'address', 'phone', 'openingHours', 'priceRange', 'description', 'regionId', 'districtId', 'categoryId', 'subcategoryId'];
+    let targetSlug = '', before = null, proposed;
     if (mode === 'update') {
-      slug = clean(body.slug, 80);
-      if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) return json(400, { error: '找不到要修改的店家' });
+      targetSlug = clean(body.slug, 80);
+      if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(targetSlug)) return json(400, { error: '找不到要修改的店家' });
       let file;
       try {
-        file = await gh('GET', `/contents/src/content/restaurants/${slug}.json?ref=${baseSha}`);
+        file = await gh('GET', `/contents/src/content/restaurants/${targetSlug}.json?ref=${baseSha}`);
       } catch {
         return json(400, { error: '找不到要修改的店家' });
       }
       before = JSON.parse(b64ToUtf8(file.content));
-      record = { ...before };
-      // 只套用有改動的欄位；分級、編輯備註、網址代號、複核日期不動
-      for (const k of ['name', 'address', 'phone', 'openingHours', 'priceRange', 'description', 'regionId', 'districtId', 'categoryId', 'subcategoryId']) {
+      proposed = { ...before };
+      // 只套用有改動的欄位；必填欄位清空時保留原值
+      for (const k of EDITABLE) {
         const v = rec[k];
         if ((v || '') !== (before[k] || '')) {
-          if (v) record[k] = v;
-          else if (!['name', 'address', 'description', 'regionId', 'districtId', 'categoryId'].includes(k)) delete record[k];
+          if (v) proposed[k] = v;
+          else if (!['name', 'address', 'description', 'regionId', 'districtId', 'categoryId'].includes(k)) proposed[k] = '';
         }
       }
-      const editable = ['name', 'address', 'phone', 'openingHours', 'priceRange', 'description', 'regionId', 'districtId', 'categoryId', 'subcategoryId'];
-      if (!photoMeta.length && editable.every((k) => (record[k] || '') === (before[k] || ''))) {
+      if (!photoMeta.length && EDITABLE.every((k) => (proposed[k] || '') === (before[k] || ''))) {
         return json(400, { error: '沒有偵測到任何修改，請修改有誤的欄位或加上照片後再送出' });
       }
     } else {
-      slug = slugify(rec.name);
-      // 避免撞名：檔案存在就加後綴
-      for (let n = 2; ; n++) {
-        try {
-          await gh('GET', `/contents/src/content/restaurants/${slug}.json?ref=${baseSha}`);
-          slug = `${slugify(rec.name)}-${n}`;
-        } catch {
-          break;
-        }
-      }
-      record = {
-        urlId: slug,
-        name: rec.name,
-        regionId: rec.regionId,
-        districtId: rec.districtId,
-        categoryId: rec.categoryId,
-        ...(rec.subcategoryId ? { subcategoryId: rec.subcategoryId } : {}),
-        tierId: 'unrated',
-        address: rec.address,
-        ...(rec.phone ? { phone: rec.phone } : {}),
-        ...(rec.openingHours ? { openingHours: rec.openingHours } : {}),
-        ...(rec.priceRange ? { priceRange: rec.priceRange } : {}),
-        tags: [],
-        description: rec.description,
-        lastReviewedAt: twToday(),
-      };
+      proposed = { ...rec, tierId: 'unrated', editorNote: '' };
     }
 
-    // ---------- 照片 ----------
+    const id = `${slugify(rec.name || before?.name || 'shop').slice(0, 30).replace(/-+$/, '')}-${Date.now().toString(36)}${rand().slice(0, 3)}`;
+
+    // ---------- 照片：先放在 submissions/photos/（不會部署上線），核准後才搬到 public/ ----------
     const tree = [];
     const photoPaths = [];
     for (const p of photoMeta) {
-      const path = `public/images/restaurants/${slug}-${rand()}.${p.ext}`;
+      const path = `submissions/photos/${id}-${rand()}.${p.ext}`;
       const blob = await gh('POST', '/git/blobs', { content: p.data, encoding: 'base64' });
       tree.push({ path, mode: '100644', type: 'blob', sha: blob.sha });
-      photoPaths.push('/' + path.replace(/^public\//, ''));
+      photoPaths.push('/' + path);
     }
-    if (photoPaths.length) {
-      const gallery = Array.isArray(record.gallery) ? [...record.gallery] : [];
-      let rest = photoPaths;
-      if (!record.coverImage) {
-        record.coverImage = photoPaths[0];
-        rest = photoPaths.slice(1);
-      }
-      record.gallery = [...gallery, ...rest];
-      if (!record.gallery.length) delete record.gallery;
-    }
-
-    const order = ['urlId', 'name', 'regionId', 'districtId', 'categoryId', 'subcategoryId', 'tierId', 'address', 'phone',
-      'openingHours', 'priceRange', 'tags', 'description', 'coverImage', 'gallery', 'lat', 'lng', 'editorNote', 'lastReviewedAt'];
-    const out = {};
-    for (const k of order) if (record[k] !== undefined) out[k] = record[k];
-    for (const k of Object.keys(record)) if (!(k in out)) out[k] = record[k];
-
-    tree.push({ path: `src/content/restaurants/${slug}.json`, mode: '100644', type: 'blob', content: JSON.stringify(out, null, 2) + '\n' });
-    if (newDistrict) {
-      tree.push({ path: 'src/content/taxonomy/regions.json', mode: '100644', type: 'blob', content: JSON.stringify(regionsDoc, null, 2) + '\n' });
-    }
-
-    // ---------- 分支 → commit → PR ----------
-    const newTree = await gh('POST', '/git/trees', { base_tree: baseCommit.tree.sha, tree });
-    const title = `${mode === 'create' ? '投稿新增' : '投稿修改'}：${out.name}`;
-    const commit = await gh('POST', '/git/commits', {
-      message: `content(投稿): ${mode === 'create' ? '新增' : '修改'}「${out.name}」${submitter ? `（投稿者：${submitter}）` : ''}`,
-      tree: newTree.sha,
-      parents: [baseSha],
-    });
-    const branch = `submission/${slug}-${Date.now().toString(36)}`;
-    await gh('POST', '/git/refs', { ref: `refs/heads/${branch}`, sha: commit.sha });
 
     const regionName = region.name;
-    const districtName = region.districts.find((x) => x.id === out.districtId)?.name ?? out.districtId;
-    const lines = [
-      `> 由網站 \`/user\` 投稿自動建立。合併前請確認內容；**分級請由編輯決定**（投稿者的建議分級不會寫入資料）。`,
-      '',
-      `- 類型：**${mode === 'create' ? '新增店家' : '修改既有店家'}**`,
-      `- 店名：${out.name}（${regionName}・${districtName}）`,
-      `- 投稿者：${submitter || '（未填）'}`,
-      `- 建議分級：${suggestedTier ? suggestedTier.name : '（未填）'}`,
-      ...(newDistrict ? [`- ⚠️ 新增鄉鎮區：${regionName}・${newDistrict.name}（\`${newDistrict.id}\`）`] : []),
-      ...(photoPaths.length ? [`- 照片：${photoPaths.length} 張（請確認為投稿者自行拍攝）`] : []),
-      ...(note ? ['', '**投稿者備註**', '', note.split('\n').map((l) => `> ${l}`).join('\n')] : []),
+    const districtName = newDistrict?.name ?? region.districts.find((x) => x.id === proposed.districtId)?.name ?? proposed.districtId;
+    const labels = { name: '店名', address: '地址', phone: '電話', openingHours: '營業時間', priceRange: '價位', description: '介紹', regionId: '縣市', districtId: '鄉鎮區', categoryId: '分類', subcategoryId: '細分類' };
+    const summary = [
+      `${mode === 'create' ? '【新增店家】' : `【修改既有店家：${before.name}（/restaurant/${targetSlug}）】`}`,
+      `${proposed.name}（${regionName}・${districtName}）`,
+      ...(newDistrict ? [`⚠️ 新增鄉鎮區：${regionName}・${newDistrict.name}（${newDistrict.id}）——核准時會一併加入地區設定`] : []),
+      ...(photoPaths.length ? [`照片 ${photoPaths.length} 張（請確認為投稿者自行拍攝、無他人肖像）`] : []),
     ];
     if (before) {
-      const labels = { name: '店名', address: '地址', phone: '電話', openingHours: '營業時間', priceRange: '價位', description: '介紹', regionId: '縣市', districtId: '鄉鎮區', categoryId: '分類', subcategoryId: '細分類' };
-      const changed = Object.keys(labels).filter((k) => (before[k] || '') !== (out[k] || ''));
-      lines.push('', '**修改內容**', '', '| 欄位 | 原本 | 改為 |', '|---|---|---|');
-      for (const k of changed) lines.push(`| ${labels[k]} | ${String(before[k] ?? '').replace(/\|/g, '｜')} | ${String(out[k] ?? '').replace(/\|/g, '｜')} |`);
-      if (!changed.length) lines.push('| （沒有修改欄位，只新增照片） | | |');
+      const changed = EDITABLE.filter((k) => (before[k] || '') !== (proposed[k] || ''));
+      summary.push('', '修改內容：');
+      for (const k of changed) summary.push(`・${labels[k]}：${before[k] || '（空白）'} → ${proposed[k] || '（清空）'}`);
+      if (!changed.length) summary.push('・（沒有修改欄位，只新增照片）');
     }
-    lines.push('', '審查清單：', '- [ ] 資料正確（可對照 Google 地圖）', '- [ ] 照片為投稿者自行拍攝、無他人肖像', '- [ ] 合併後到 `/admin` 評定分級');
 
-    let pr;
-    try {
-      pr = await gh('POST', '/pulls', { title, head: branch, base: 'main', body: lines.join('\n') });
-    } catch (e) {
-      // 開 PR 失敗（例如 token 少了 Pull requests 權限）時，刪掉剛建立的分支，避免留下殘留
+    const submission = {
+      status: 'pending',
+      mode,
+      ...(targetSlug ? { targetSlug } : {}),
+      submittedAt: new Date(Date.now() + 8 * 3600e3).toISOString().replace('T', ' ').slice(0, 16),
+      submitter,
+      suggestedTier: suggestedTier ? suggestedTier.name : '',
+      note,
+      summary: summary.join('\n'),
+      name: proposed.name,
+      regionId: proposed.regionId,
+      districtId: proposed.districtId,
+      categoryId: proposed.categoryId,
+      subcategoryId: proposed.subcategoryId || '',
+      tierId: proposed.tierId || 'unrated',
+      address: proposed.address,
+      phone: proposed.phone || '',
+      openingHours: proposed.openingHours || '',
+      priceRange: proposed.priceRange || '',
+      description: proposed.description,
+      editorNote: proposed.editorNote || '',
+      photos: photoPaths,
+      // 核准時用來判斷「哪些欄位被投稿者或編輯改過」，只套用有變動的欄位（後台隱藏）
+      baseline: before
+        ? JSON.stringify(Object.fromEntries([...EDITABLE, 'tierId', 'editorNote'].map((k) => [k, before[k] ?? ''])))
+        : '',
+      newDistrict: newDistrict ? JSON.stringify({ regionId: region.id, ...newDistrict }) : '',
+    };
+    tree.push({ path: `submissions/${id}.json`, mode: '100644', type: 'blob', content: JSON.stringify(submission, null, 2) + '\n' });
+
+    // ---------- 直接 commit 到 main（只動 submissions/，不觸發部署）。main 剛好被別人更新時重試 ----------
+    const message = `submission: ${mode === 'create' ? '新增' : '修改'}「${proposed.name}」${submitter ? `（投稿者：${submitter}）` : ''}`;
+    let parent = baseSha;
+    for (let attempt = 1; ; attempt++) {
+      const parentCommit = await gh('GET', `/git/commits/${parent}`);
+      const newTree = await gh('POST', '/git/trees', { base_tree: parentCommit.tree.sha, tree });
+      const commit = await gh('POST', '/git/commits', { message, tree: newTree.sha, parents: [parent] });
       try {
-        await gh('DELETE', `/git/refs/heads/${branch}`);
-      } catch {
-        /* 刪除失敗就算了 */
+        await gh('PATCH', '/git/refs/heads/main', { sha: commit.sha, force: false });
+        break;
+      } catch (e) {
+        if (attempt >= 4 || e.status !== 422) throw e;
+        parent = (await gh('GET', '/git/ref/heads/main')).object.sha;
       }
-      throw e;
     }
-    try {
-      await gh('POST', `/issues/${pr.number}/labels`, { labels: ['user-submission'] });
-    } catch {
-      /* 標籤失敗不影響投稿 */
-    }
-    return json(200, { ok: true, number: pr.number });
+    return json(200, { ok: true, id });
   } catch (e) {
     console.error('submit failed', e.message, JSON.stringify(e.data || {}));
     return json(502, { error: '送出時發生問題，請稍後再試' });

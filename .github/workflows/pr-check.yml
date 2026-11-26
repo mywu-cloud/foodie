@@ -1,6 +1,6 @@
 name: 投稿 / PR 檢查
 
-# /user 投稿會自動開 PR（分支 submission/*）。這個 workflow 在 PR 上跑資料驗證與 build，
+# 在 PR 上跑資料驗證與 build（/user 投稿已改走 /admin「投稿審核」，這裡留給手動開的 PR）。
 # 審查者在 PR 頁面就能看到投稿資料是否正確（縣市／鄉鎮區對應、分類、照片存在與大小）。不部署、不需要 secrets。
 on:
   pull_request:

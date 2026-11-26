@@ -129,6 +129,60 @@ const restaurantFields = [
 
 const schemaNote = { name: '$schema', widget: 'hidden' };
 
+// /user 投稿收件匣（submissions/）。把「審核狀態」改成核准／退件並存檔，
+// .github/workflows/apply-submissions.yml 就會自動寫入店家資料並部署（見 scripts/apply-submissions.mjs）。
+const pick = (name) => ({ ...restaurantFields.find((f) => f.name === name) });
+const submissionFields = [
+  {
+    name: 'status',
+    label: '審核狀態',
+    widget: 'select',
+    default: 'pending',
+    options: [
+      { label: '⏳ 待審核', value: 'pending' },
+      { label: '✅ 核准上線', value: 'approved' },
+      { label: '❌ 退件（刪除投稿與照片）', value: 'rejected' },
+    ],
+    hint: '改成「核准上線」或「退件」後按儲存，約 2–3 分鐘後自動處理完畢，這筆投稿會從清單消失。',
+  },
+  { name: 'reviewError', label: '⚠️ 上次核准失敗的原因', widget: 'text', required: false, readonly: true, hint: '修正欄位後再核准一次即可；沒有錯誤時是空白。' },
+  { name: 'summary', label: '投稿摘要', widget: 'text', required: false, readonly: true },
+  { name: 'submittedAt', label: '投稿時間', widget: 'string', required: false, readonly: true },
+  { name: 'submitter', label: '投稿者', widget: 'string', required: false, readonly: true },
+  { name: 'suggestedTier', label: '投稿者建議分級（僅供參考）', widget: 'string', required: false, readonly: true },
+  { name: 'note', label: '投稿者備註', widget: 'text', required: false, readonly: true },
+  pick('name'),
+  pick('regionId'),
+  {
+    name: 'districtId',
+    label: '鄉鎮市區（代號）',
+    widget: 'string',
+    hint: '投稿者填的新鄉鎮區會在核准時自動加入地區設定（見上方摘要）。',
+  },
+  pick('categoryId'),
+  { name: 'subcategoryId', label: '細分類（代號，選填）', widget: 'string', required: false },
+  { ...pick('tierId'), hint: '可以在這裡直接評定分級，核准時一起寫入。' },
+  pick('address'),
+  pick('phone'),
+  pick('openingHours'),
+  pick('priceRange'),
+  pick('description'),
+  {
+    name: 'photos',
+    label: '投稿照片',
+    widget: 'image',
+    multiple: true,
+    required: false,
+    hint: '不適合的照片直接移除再核准。第一張會當封面（店家原本沒有封面時）。',
+  },
+  { name: 'editorNote', label: '分級理由（內部備註）', widget: 'text', required: false },
+  { name: 'mode', widget: 'hidden' },
+  { name: 'targetSlug', widget: 'hidden' },
+  { name: 'baseline', widget: 'hidden' },
+  { name: 'newDistrict', widget: 'hidden' },
+];
+
+
 const config = {
   backend: {
     name: 'github',
@@ -159,6 +213,28 @@ const config = {
     },
   },
   collections: [
+    {
+      name: 'submissions',
+      label: '投稿審核',
+      label_singular: '投稿',
+      description: '訪客從 /user 推薦或修改的店家。把「審核狀態」改成核准或退件後儲存即可。',
+      folder: 'submissions',
+      extension: 'json',
+      format: 'json',
+      create: false,
+      delete: true,
+      identifier_field: 'name',
+      summary: '{{status}}｜{{name}}｜{{mode}}｜{{submittedAt}}',
+      sortable_fields: ['submittedAt', 'name', 'status'],
+      view_filters: [
+        { label: '⏳ 待審核', field: 'status', pattern: 'pending' },
+        { label: '✅ 核准處理中', field: 'status', pattern: 'approved' },
+      ],
+      // 照片放在 submissions/photos/（不會部署上線），核准後才搬到 public/
+      media_folder: '/submissions/photos',
+      public_folder: '/submissions/photos',
+      fields: submissionFields,
+    },
     {
       name: 'restaurants',
       label: '餐廳',

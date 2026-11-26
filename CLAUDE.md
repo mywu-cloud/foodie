@@ -80,7 +80,7 @@
 /restaurant/[slug]          餐廳詳情頁
 /search                     搜尋頁（關鍵字 + 縣市／鄉鎮區／分類／分級篩選）
 /about-data                 資料來源與分級說明（footer 連結；修改資料政策時要同步更新）
-/user                       前台投稿（訪客免註冊；?slug=xxx 為修改既有店家）→ /api/submit 自動開 PR
+/user                       前台投稿（訪客免註冊；?slug=xxx 為修改既有店家）→ /api/submit 存進 submissions/ 收件匣
 ```
 
 搜尋/篩選以查詢字串組合（如 `/search?q=牛肉湯&region=kaohsiung&category=snacks&tier=must-eat`）。目前由靜態頁 `src/pages/search.astro` 在前端篩選（build 時輸出全部店家卡片），不需要 Worker；店家數量大到頁面過重時，再改由 Worker 的 `/search` 端點處理。首頁搜尋框送出的 `district=縣市:鄉鎮區`、`category=分類[:細分類]` 可帶多個值。
@@ -99,7 +99,8 @@ src/
   lib/taxonomy.ts           taxonomy 讀取與查詢的共用函式
   lib/restaurants.ts        店家列表共用排序（分級 → 有封面照 → 最近複核日期）
 public/admin/               編輯後台（Sveltia CMS），config.yml 由 scripts/build-cms-config.mjs 產生，勿手改
-functions/api/submit.js     Cloudflare Pages Function：/user 投稿 → 建 submission/* 分支並開 PR（Turnstile 驗證；不寫 tierId）
+functions/api/submit.js     Cloudflare Pages Function：/user 投稿 → commit submissions/<id>.json 到 main（Turnstile 驗證；不寫 tierId）
+scripts/apply-submissions.mjs  /admin「投稿審核」核准／退件後由 apply-submissions.yml 執行：寫入店家、搬照片、驗證、部署
 public/images/restaurants/  照片（後台上傳自動轉 WebP 1600px）
 workers/api.js              Cloudflare Worker：搜尋 API + 受保護的寫入端點
 scripts/fetch-data.mjs      GitHub Actions 排程執行的資料同步腳本
@@ -121,6 +122,6 @@ data-import/inbox/          自助上傳區：上傳後 .github/workflows/import
 
 - 新增 taxonomy 欄位或餐廳欄位時，要同步更新 `src/content/config.ts`、`scripts/build-cms-config.mjs`、`scripts/import-csv.mjs`
 - 選填欄位在 schema 用 `optional()` helper（把 `""`／`null` 視為未填），因為 CMS 可能存出空值
-- 一般使用者投稿走 `/user` → `functions/api/submit.js`（Pages Function）自動開 PR，不需要 GitHub 帳號、也不需要資料庫；審查就是 GitHub PR review。投稿者只能提議新增／修改，不能刪除；`tierId` 一律由編輯決定（建議分級只寫在 PR 說明）
+- 一般使用者投稿走 `/user` → `functions/api/submit.js`（Pages Function）存進 `submissions/` 收件匣（不部署），不需要 GitHub 帳號、也不需要資料庫；審查在 `/admin`「投稿審核」把狀態改成核准／退件，`.github/workflows/apply-submissions.yml` 自動套用並部署。投稿者只能提議新增／修改，不能刪除；`tierId` 一律由編輯決定（建議分級只當參考）
 - 投稿 API 的 secrets（`GITHUB_SUBMIT_TOKEN`、`TURNSTILE_SECRET`）設在 Cloudflare Pages；Turnstile site key 是 Actions 變數 `TURNSTILE_SITEKEY`（build 時寫進頁面）。沒設定時 `/user` 顯示「即將開放」、API 回 503
 - `workers/api.js` 的寫入端點目前不使用
