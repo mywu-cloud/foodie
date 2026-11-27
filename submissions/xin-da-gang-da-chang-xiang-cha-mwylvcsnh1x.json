@@ -1,11 +1,11 @@
 {
-  "status": "pending",
-  "mode": "create",
+  "status": "approved",
+  "reviewError": "",
+  "summary": "【新增店家】\n新大港大腸香腸（高雄・三民區）\n照片 3 張（請確認為投稿者自行拍攝、無他人肖像）",
   "submittedAt": "2026-11-27 14:33",
   "submitter": "",
   "suggestedTier": "巷弄推薦",
   "note": "",
-  "summary": "【新增店家】\n新大港大腸香腸（高雄・三民區）\n照片 3 張（請確認為投稿者自行拍攝、無他人肖像）",
   "name": "新大港大腸香腸",
   "regionId": "kaohsiung",
   "districtId": "kaohsiung-sanmin",
@@ -13,16 +13,17 @@
   "subcategoryId": "",
   "tierId": "unrated",
   "address": "807高雄市三民區安生里十全一路52號",
-  "phone": "07 3222711",
+  "phone": "07 322 2711",
   "openingHours": "14:30–19:00 (週二 休息)",
   "priceRange": "$",
   "description": "高雄前三名，炭火烘烤飄香50年，十全路高醫附近保安宮前的新大港，還未開始營業就有排隊人潮。",
-  "editorNote": "",
   "photos": [
     "/submissions/photos/xin-da-gang-da-chang-xiang-cha-mwylvcsnh1x-i1b4j1.jpg",
     "/submissions/photos/xin-da-gang-da-chang-xiang-cha-mwylvcsnh1x-suujga.jpg",
     "/submissions/photos/xin-da-gang-da-chang-xiang-cha-mwylvcsnh1x-mjax6l.jpg"
   ],
+  "editorNote": "",
+  "mode": "create",
   "baseline": "",
   "newDistrict": ""
 }
