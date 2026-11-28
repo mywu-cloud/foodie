@@ -4,14 +4,20 @@
   "regionId": "nantou",
   "districtId": "nantou-yuchi",
   "categoryId": "chinese",
-  "tierId": "unrated",
+  "subcategoryId": "",
+  "tierId": "must-eat",
+  "coverImage": "/images/restaurants/yi-wei-wu-er-lv-shi-fang-ri-yue-tan-can-ting-qrisls.jpg",
+  "gallery": [],
+  "description": "招牌：中菜館",
   "address": "南投縣魚池鄉魚池村魚池街853號",
   "phone": "049-289-8749",
   "openingHours": "11:30–14:00、17:30–20:00",
+  "priceRange": "",
   "tags": [
     "中菜館"
   ],
-  "description": "招牌：中菜館",
-  "coverImage": "/images/restaurants/yi-wei-wu-er-lv-shi-fang-ri-yue-tan-can-ting-qrisls.jpg",
+  "lat": null,
+  "lng": null,
+  "editorNote": "",
   "lastReviewedAt": "2026-11-17"
 }
