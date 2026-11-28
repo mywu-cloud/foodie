@@ -4,16 +4,20 @@
   "regionId": "kaohsiung",
   "districtId": "kaohsiung-sanmin",
   "categoryId": "snacks",
-  "tierId": "unrated",
+  "subcategoryId": "",
+  "tierId": "recommended",
+  "coverImage": "/images/restaurants/huang-ji-shao-bing-krhtg1.jpg",
+  "gallery": [
+    "/images/restaurants/huang-ji-shao-bing-trastv.jpg"
+  ],
+  "description": "計程車司機推薦，多種酥脆美味的平價燒餅，其中蘿蔔絲、黑芝麻、黑糖和白糖口味特別受到歡迎。素食可用",
   "address": "807高雄市三民區德智里熱河一街116號",
   "phone": "0908230373",
   "openingHours": "07:00–18:00 (星期日 休息)",
   "priceRange": "$",
   "tags": [],
-  "description": "計程車司機推薦，多種酥脆美味的平價燒餅，其中蘿蔔絲、黑芝麻、黑糖和白糖口味特別受到歡迎。素食可用",
-  "coverImage": "/images/restaurants/huang-ji-shao-bing-krhtg1.jpg",
-  "gallery": [
-    "/images/restaurants/huang-ji-shao-bing-trastv.jpg"
-  ],
+  "lat": null,
+  "lng": null,
+  "editorNote": "",
   "lastReviewedAt": "2026-11-25"
 }
